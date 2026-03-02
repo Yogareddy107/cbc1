@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CheckCircle2, Loader2, AlertCircle, Compass, Eye, EyeOff } from 'lucide-react';
-import { signInWithEmail, signUpWithEmail, signInWithGitHub } from '../auth/actions';
+import { signInWithEmail, signUpWithEmail, signInWithGitHub, signInWithGoogle } from '../auth/actions';
 
 
 function LoginContent() {
@@ -98,6 +98,27 @@ function LoginContent() {
         }
     };
 
+    const handleGoogleLogin = async () => {
+        try {
+            setError('');
+            setLoading(true);
+            const result = await signInWithGoogle();
+            if (result?.error) {
+                setError(result.error);
+                setLoading(false);
+            } else if (result?.url) {
+                window.location.href = result.url;
+            } else {
+                setError('Unknown OAuth response');
+                setLoading(false);
+            }
+        } catch (err: any) {
+            console.error('Google login error:', err);
+            setError(err.message || 'Failed to initiate Google login');
+            setLoading(false);
+        }
+    };
+
 
     return (
         <div className="flex min-h-screen bg-[#FFFDF6] text-[#1A1A1A]">
@@ -178,17 +199,32 @@ function LoginContent() {
                     )}
 
                     <div className="space-y-8">
-                        <Button
-                            variant="outline"
-                            className="w-full h-14 text-md font-bold border-[#1A1A1A]/5 hover:bg-white hover:border-[#1A1A1A]/10 bg-white shadow-sm transition-all flex items-center justify-center gap-3 rounded-2xl group"
-                            onClick={handleGitHubLogin}
-                            disabled={loading}
-                        >
-                            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                            </svg>
-                            Continue with GitHub
-                        </Button>
+                        <div className="flex flex-row lg:flex-col items-center justify-center gap-4">
+                            <Button
+                                variant="outline"
+                                className="flex items-center justify-center gap-3 lg:w-full h-14 text-md font-bold border-[#1A1A1A]/5 hover:bg-white hover:border-[#1A1A1A]/10 bg-white shadow-sm transition-all rounded-2xl group"
+                                onClick={handleGoogleLogin}
+                                disabled={loading}
+                            >
+                                {/* Google logo */}
+                                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M21.35 11.1h-9.36v2.92h5.54c-.24 1.28-1.4 3.75-5.54 3.75-3.33 0-6.04-2.76-6.04-6.17s2.71-6.17 6.04-6.17c1.9 0 3.17.81 3.9 1.5l2.65-2.56C17.3 3.15 14.58 2 11 2 5.48 2 1 6.48 1 12s4.48 10 10 10c5.77 0 9.95-4.04 9.95-9.77 0-.66-.07-1.17-.15-1.43z" />
+                                </svg>
+                                <span className="hidden lg:inline">Continue with Google</span>
+                            </Button>
+
+                            <Button
+                                variant="outline"
+                                className="flex items-center justify-center gap-3 lg:w-full h-14 text-md font-bold border-[#1A1A1A]/5 hover:bg-white hover:border-[#1A1A1A]/10 bg-white shadow-sm transition-all rounded-2xl group"
+                                onClick={handleGitHubLogin}
+                                disabled={loading}
+                            >
+                                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                                <span className="hidden lg:inline">Continue with GitHub</span>
+                            </Button>
+                        </div>
 
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">

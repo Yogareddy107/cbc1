@@ -15,7 +15,7 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}${next}`)
     } catch (error: any) {
         // No valid session, redirect to login with error
-        console.error('GitHub callback error:', error);
-        return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent('GitHub authentication failed. Please try again.')}`)
+        console.error('Google callback error:', error);
+        return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent('Google authentication failed. Please try again.')}`)
     }
 }

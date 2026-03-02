@@ -18,8 +18,9 @@ export const subscriptions = sqliteTable("subscriptions", {
     user_id: text("user_id").notNull(),
     razorpay_subscription_id: text("razorpay_subscription_id"),
     razorpay_customer_id: text("razorpay_customer_id"),
+    plan: text("plan", { enum: ["free", "pro"] }).default("free"), // current plan
     amount: real("amount").notNull(), // amount in rupees/currency
     status: text("status", { enum: ["active", "created", "authenticated", "past_due", "halted", "canceled", "paused", "expired", "pending", "completed"] }).notNull(),
-    current_period_end: integer("current_period_end"),
+    current_period_end: integer("current_period_end"), // Unix timestamp when plan expires
     created_at: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });

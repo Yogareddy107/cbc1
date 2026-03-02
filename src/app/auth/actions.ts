@@ -61,18 +61,33 @@ export async function signOut() {
 
 // GitHub OAuth implementation
 export async function signInWithGitHub() {
-    // Build the OAuth URL and return it instead of performing a server redirect
     try {
         const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/github-callback`;
-        const successUrl = encodeURIComponent(redirectUrl);
-        const failureUrl = encodeURIComponent(redirectUrl);
         const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1';
 
-        const authUrl = `${endpoint}/account/sessions/oauth2/github?success=${successUrl}&failure=${failureUrl}`;
+        // Appwrite will handle the OAuth flow and redirect back to the success URL
+        // Appwrite creates the session internally before redirecting
+        const authUrl = `${endpoint}/account/sessions/oauth2/github?success=${encodeURIComponent(redirectUrl)}&failure=${encodeURIComponent(redirectUrl)}`;
         return { url: authUrl };
     } catch (error: any) {
-        console.error('GitHub OAuth build error:', error);
-        return { error: error.message || 'Failed to build GitHub OAuth URL.' };
+        console.error('GitHub OAuth error:', error);
+        return { error: error.message || 'Failed to initiate GitHub login.' };
+    }
+}
+
+// Google OAuth implementation
+export async function signInWithGoogle() {
+    try {
+        const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/google-callback`;
+        const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1';
+
+        // Appwrite will handle the OAuth flow and redirect back to the success URL
+        // Appwrite creates the session internally before redirecting
+        const authUrl = `${endpoint}/account/sessions/oauth2/google?success=${encodeURIComponent(redirectUrl)}&failure=${encodeURIComponent(redirectUrl)}`;
+        return { url: authUrl };
+    } catch (error: any) {
+        console.error('Google OAuth error:', error);
+        return { error: error.message || 'Failed to initiate Google login.' };
     }
 }
 

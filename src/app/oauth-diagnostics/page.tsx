@@ -8,20 +8,24 @@ export default function OAuthDiagnosticsPage() {
   const [checks, setChecks] = useState({
     appwriteConnection: 'checking',
     githubOAuthEnabled: 'checking',
+    googleOAuthEnabled: 'checking',
     env: 'checking',
     redirectUrl: 'checking',
+    googleRedirectUrl: 'checking',
   });
 
   useEffect(() => {
     const runDiagnostics = async () => {
       // Check environment variables
       const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
+      const googleId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
       const appUrl = process.env.NEXT_PUBLIC_APP_URL;
       
       setChecks(prev => ({
         ...prev,
-        env: (clientId && appUrl) ? 'success' : 'error',
+        env: (clientId && googleId && appUrl) ? 'success' : 'error',
         redirectUrl: appUrl ? 'success' : 'error',
+        googleRedirectUrl: appUrl ? 'success' : 'error',
       }));
 
       // Check Appwrite connection
@@ -38,10 +42,11 @@ export default function OAuthDiagnosticsPage() {
         }));
       }
 
-      // Note about GitHub OAuth in Appwrite
+      // Note about GitHub/Google OAuth in Appwrite
       setChecks(prev => ({
         ...prev,
         githubOAuthEnabled: 'warning', // User needs to check manually
+        googleOAuthEnabled: 'warning',
       }));
     };
 
@@ -67,8 +72,8 @@ export default function OAuthDiagnosticsPage() {
     <div className="min-h-screen bg-[#FFFDF6] text-[#1A1A1A] py-16 px-6">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-2xl border border-[#1A1A1A]/10 p-8 shadow-sm">
-          <h1 className="text-3xl font-bold tracking-tight mb-2">GitHub OAuth Diagnostics</h1>
-          <p className="text-[#1A1A1A]/60 mb-8">Check if your GitHub OAuth setup is configured correctly</p>
+          <h1 className="text-3xl font-bold tracking-tight mb-2">OAuth Diagnostics</h1>
+          <p className="text-[#1A1A1A]/60 mb-8">Check if your GitHub or Google OAuth setup is configured correctly</p>
 
           <div className="space-y-6 mb-8">
             {/* Environment Variables */}
@@ -79,8 +84,10 @@ export default function OAuthDiagnosticsPage() {
               </div>
               <div className="text-sm text-[#1A1A1A]/70 ml-8 space-y-1">
                 <p>✓ NEXT_PUBLIC_GITHUB_CLIENT_ID: {process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID ? 'Set' : 'Not set'}</p>
+                <p>✓ NEXT_PUBLIC_GOOGLE_CLIENT_ID: {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? 'Set' : 'Not set'}</p>
                 <p>✓ NEXT_PUBLIC_APP_URL: {process.env.NEXT_PUBLIC_APP_URL || 'Not set'}</p>
                 <p>✓ GITHUB_OAUTH_CLIENT_SECRET: {process.env.GITHUB_OAUTH_CLIENT_SECRET ? 'Set' : 'Not set'}</p>
+                <p>✓ GOOGLE_OAUTH_CLIENT_SECRET: {process.env.GOOGLE_OAUTH_CLIENT_SECRET ? 'Set' : 'Not set'}</p>
               </div>
             </div>
 
@@ -108,7 +115,7 @@ export default function OAuthDiagnosticsPage() {
                 <ol className="list-decimal list-inside space-y-1 ml-2">
                   <li>Go to Appwrite Console → Your Project</li>
                   <li>Navigate to Settings → OAuth Providers (or Auth)</li>
-                  <li>Find GitHub and verify it's enabled</li>
+                  <li>Find GitHub and/or Google and verify they're enabled</li>
                   <li>Confirm Client ID and Secret are entered correctly</li>
                 </ol>
               </div>
@@ -124,6 +131,20 @@ export default function OAuthDiagnosticsPage() {
                 <p>Your OAuth callback URL should be:</p>
                 <code className="block bg-gray-100 p-2 rounded mt-2 font-mono text-xs">
                   {(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')}/auth/github-callback
+                </code>
+              </div>
+            </div>
+
+            {/* Google Callback URL */}
+            <div className="border border-[#1A1A1A]/10 rounded-lg p-4 mt-4">
+              <div className="flex items-center gap-3 mb-3">
+                {getStatusIcon(checks.googleOAuthEnabled)}
+                <h3 className="font-semibold">Google Callback URL</h3>
+              </div>
+              <div className="text-sm text-[#1A1A1A]/70 ml-8 space-y-2">
+                <p>Your Google OAuth callback URL should be:</p>
+                <code className="block bg-gray-100 p-2 rounded mt-2 font-mono text-xs">
+                  {(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')}/auth/google-callback
                 </code>
               </div>
             </div>
