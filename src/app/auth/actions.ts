@@ -1,6 +1,7 @@
 'use server';
 
 import { createAdminClient, createSessionClient } from '@/lib/appwrite';
+import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { ID } from 'node-appwrite';
 import { isAdminEmail } from '@/lib/admin';
@@ -23,8 +24,8 @@ export async function signInWithEmail(formData: FormData) {
         // return flag indicating whether the user is an admin
         const isAdmin = isAdminEmail(email);
         return { success: true, isAdmin };
-    } catch (error) {
-        return { error: error instanceof Error ? error.message : "An unknown error occurred" };
+    } catch (error: any) {
+        return { error: error.message };
     }
 }
 
@@ -39,9 +40,8 @@ export async function signUpWithEmail(formData: FormData) {
 
         // Log them in immediately after sign up
         return await signInWithEmail(formData);
-    } catch (error) {
-        const message = error instanceof Error ? error.message : "An unknown error occurred";
-        return { error: message };
+    } catch (error: any) {
+        return { error: error.message };
     }
 }
 
@@ -51,12 +51,12 @@ export async function signOut() {
 
         (await cookies()).delete("appwrite-session");
         await account.deleteSession("current");
-        return { success: true };
-    } catch {
+    } catch (error) {
         // Even if session delete fails on server, we clear the cookie
         (await cookies()).delete("appwrite-session");
-        return { success: true };
     }
+
+    redirect("/");
 }
 
 // GitHub OAuth implementation
@@ -70,9 +70,9 @@ export async function signInWithGitHub() {
 
         const authUrl = `${endpoint}/account/sessions/oauth2/github?success=${successUrl}&failure=${failureUrl}`;
         return { url: authUrl };
-    } catch (error) {
+    } catch (error: any) {
         console.error('GitHub OAuth build error:', error);
-        return { error: error instanceof Error ? error.message : 'Failed to build GitHub OAuth URL.' };
+        return { error: error.message || 'Failed to build GitHub OAuth URL.' };
     }
 }
 
@@ -80,21 +80,21 @@ export async function signInWithGitHub() {
 export async function handleGitHubCallback(userId: string, secret: string) {
     try {
         const { account } = await createAdminClient();
-
+        
         // Create session using the OAuth credentials from callback
         const session = await account.createSession(userId, secret);
-
+        
         (await cookies()).set('appwrite-session', session.secret, {
             path: '/',
             httpOnly: true,
             sameSite: 'strict',
             secure: true,
         });
-
+        
         return { success: true, message: 'GitHub authentication successful' };
-    } catch (error) {
+    } catch (error: any) {
         console.error('GitHub callback error:', error);
-        return { error: error instanceof Error ? error.message : 'Failed to complete GitHub authentication' };
+        return { error: error.message || 'Failed to complete GitHub authentication' };
     }
 }
 

@@ -28,10 +28,10 @@ export async function POST(request: NextRequest) {
     // Save subscription to database
     if (userId && email && amount) {
       const subscriptionId = `sub_${Date.now()}`;
-
+      
       await db.insert(subscriptions).values({
         id: subscriptionId,
-        userId: userId,
+        user_id: userId,
         razorpay_subscription_id: paymentId,
         amount: amount,
         status: 'active',

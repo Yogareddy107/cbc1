@@ -29,13 +29,11 @@ export function TopBar({ user, onHamburger }: TopBarProps) {
 
     const handleSignOut = async () => {
         setIsLoggingOut(true);
-        const res = await signOut();
-        if (res.success) {
-            setIsLogoutModalOpen(false);
-            router.push('/');
-            router.refresh();
-        } else {
+        try {
+            await signOut();
+        } finally {
             setIsLoggingOut(false);
+            setIsLogoutModalOpen(false);
         }
     };
 

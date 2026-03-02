@@ -23,7 +23,7 @@ export default async function HistoryPage() {
 
     const rawAnalyses = await db.select()
         .from(analysesTable)
-        .where(eq(analysesTable.userId, user.$id))
+        .where(eq(analysesTable.user_id, user.$id))
         .orderBy(desc(analysesTable.created_at));
 
     const analyses = rawAnalyses.map(a => ({

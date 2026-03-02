@@ -3,7 +3,7 @@ import { createRazorpayOrder } from '@/lib/razorpay';
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, email, receipt } = await request.json();
+    const { amount, email, name, receipt } = await request.json();
 
     if (!amount || !email) {
       return NextResponse.json(

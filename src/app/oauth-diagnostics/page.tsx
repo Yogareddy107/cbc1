@@ -17,7 +17,7 @@ export default function OAuthDiagnosticsPage() {
       // Check environment variables
       const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
       const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-
+      
       setChecks(prev => ({
         ...prev,
         env: (clientId && appUrl) ? 'success' : 'error',
@@ -68,7 +68,6 @@ export default function OAuthDiagnosticsPage() {
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-2xl border border-[#1A1A1A]/10 p-8 shadow-sm">
           <h1 className="text-3xl font-bold tracking-tight mb-2">GitHub OAuth Diagnostics</h1>
-          <p className="text-[#1A1A1A]/70 text-sm leading-relaxed">It looks like there&apos;s an issue with your GitHub OAuth flow. This tool will help us identify what&apos;s wrong.</p>
           <p className="text-[#1A1A1A]/60 mb-8">Check if your GitHub OAuth setup is configured correctly</p>
 
           <div className="space-y-6 mb-8">
@@ -109,7 +108,7 @@ export default function OAuthDiagnosticsPage() {
                 <ol className="list-decimal list-inside space-y-1 ml-2">
                   <li>Go to Appwrite Console → Your Project</li>
                   <li>Navigate to Settings → OAuth Providers (or Auth)</li>
-                  <li>Find GitHub and verify it&apos;s enabled</li>
+                  <li>Find GitHub and verify it's enabled</li>
                   <li>Confirm Client ID and Secret are entered correctly</li>
                 </ol>
               </div>
@@ -142,7 +141,7 @@ export default function OAuthDiagnosticsPage() {
                 </Link>
               </li>
               <li>After configuring in Appwrite, refresh this page</li>
-              <li>Try clicking &quot;Continue with GitHub&quot; on the login page</li>
+              <li>Try clicking "Continue with GitHub" on the login page</li>
             </ol>
           </div>
 

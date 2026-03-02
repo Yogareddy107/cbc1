@@ -14,11 +14,11 @@ export async function GET(request: Request) {
         // GitHub OAuth was successful - userId and secret are provided by Appwrite
         if (userId && secret) {
             const { account } = await createAdminClient();
-
+            
             try {
                 // Create a session with the OAuth credentials from GitHub
                 const session = await account.createSession(userId, secret);
-
+                
                 (await cookies()).set('appwrite-session', session.secret, {
                     path: '/',
                     httpOnly: true,
@@ -27,19 +27,17 @@ export async function GET(request: Request) {
                 });
 
                 return NextResponse.redirect(`${origin}${next}`)
-            } catch (sessionError) {
-                const message = sessionError instanceof Error ? sessionError.message : 'Unknown session error';
+            } catch (sessionError: any) {
                 console.error('Session creation error:', sessionError);
-                return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent('Failed to create session: ' + message)}`)
+                return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent('Failed to create session: ' + sessionError.message)}`)
             }
         }
 
         // No userId/secret means authentication failed
         const error = searchParams.get('error') || 'GitHub authentication failed'
         return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error)}`)
-    } catch (e) {
-        const message = e instanceof Error ? e.message : 'Authentication failed';
+    } catch (e: any) {
         console.error('GitHub callback error:', e);
-        return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(message)}`)
+        return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(e.message || 'Authentication failed')}`)
     }
 }

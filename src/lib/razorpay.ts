@@ -1,5 +1,4 @@
 import Razorpay from 'razorpay';
-import crypto from 'crypto';
 
 export const razorpay = new Razorpay({
   key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
@@ -41,13 +40,14 @@ export async function createRazorpayCustomer(email: string, name?: string) {
  */
 export async function createRazorpaySubscription(options: RazorpaySubscriptionOptions) {
   try {
+    // razorpay typings are a bit narrow; cast to any to avoid property errors
     const subscription = await razorpay.subscriptions.create({
       plan_id: options.plan_id,
       customer_id: options.customer_id,
       quantity: options.quantity || 1,
       total_count: options.total_count || 12, // 12 months by default
       start_at: options.start_at,
-    } as unknown as Parameters<typeof razorpay.subscriptions.create>[0]);
+    } as any);
     return subscription;
   } catch (error) {
     console.error('Error creating Razorpay subscription:', error);
@@ -110,7 +110,7 @@ export function verifyRazorpaySignature(
   signature: string
 ): boolean {
   try {
-    const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!);
+    const shasum = require('crypto').createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!);
     shasum.update(`${orderId}|${paymentId}`);
     const digest = shasum.digest('hex');
     return digest === signature;

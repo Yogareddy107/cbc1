@@ -35,7 +35,7 @@ export default function CookiePolicyPage() {
             <div>
               <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">2. What Cookies Do We Use?</h2>
               <p className="text-[#1A1A1A]/80 leading-relaxed mb-4">CheckBeforeCommit uses the following types of cookies:</p>
-
+              
               <div className="space-y-4">
                 <div>
                   <h3 className="font-semibold text-[#1A1A1A] mb-2">Essential Cookies</h3>
@@ -65,7 +65,7 @@ export default function CookiePolicyPage() {
                 <div>
                   <h3 className="font-semibold text-[#1A1A1A] mb-2">Functional Cookies</h3>
                   <p className="text-[#1A1A1A]/80">
-                    Learn how we use cookies and how you can manage your preferences. It&apos;s part of our commitment to transparency.
+                    These cookies remember your preferences and personalization settings:
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-[#1A1A1A]/80 mt-2">
                     <li>Language preferences</li>
@@ -109,7 +109,7 @@ export default function CookiePolicyPage() {
             <div>
               <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">6. Impact of Disabling Cookies</h2>
               <p className="text-[#1A1A1A]/80 leading-relaxed">
-                If you disable essential cookies, some features of our website may not function properly. However, you can still use most of the site&apos;s functionality. Disabling analytical and functional cookies will not affect your ability to use the service.
+                If you disable essential cookies, some features of our website may not function properly. However, you can still use most of the site's functionality. Disabling analytical and functional cookies will not affect your ability to use the service.
               </p>
             </div>
 

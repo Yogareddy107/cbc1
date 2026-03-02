@@ -5,8 +5,10 @@ import { redirect } from 'next/navigation';
 import {
     Card,
     CardHeader,
+    CardTitle,
     CardContent
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import Link from 'next/link';
 import { AdminTables } from '@/components/admin/AdminTables';
 import { count, eq, gt, sql, sum } from 'drizzle-orm';
@@ -18,7 +20,7 @@ export default async function AdminDashboard() {
     try {
         const { account } = await createSessionClient();
         user = await account.get();
-    } catch {
+    } catch (e) {
         redirect('/login');
     }
 
@@ -68,7 +70,7 @@ export default async function AdminDashboard() {
     // Total Subscription Money (sum of amounts where status is 'active')
     let totalRevenue = 0;
     let paidSubscribers = 0;
-
+    
     try {
         const [totalRevenueResult] = await db.select({ value: sum(subscriptionsTable.amount) })
             .from(subscriptionsTable)
@@ -81,7 +83,7 @@ export default async function AdminDashboard() {
             .from(subscriptionsTable)
             .where(eq(subscriptionsTable.status, 'active'));
         paidSubscribers = paidSubscribersResult?.value || 0;
-    } catch {
+    } catch (error) {
         // Table may not exist yet, set defaults
         totalRevenue = 0;
         paidSubscribers = 0;
@@ -114,10 +116,10 @@ export default async function AdminDashboard() {
     const formattedAnalyses = recentAnalyses.map(a => ({
         id: a.id,
         repoUrl: a.repo_url,
-        userEmail: userEmailMap.get(a.userId) || a.userId, // Look up email from userId, fallback to userId if not found
+        userEmail: userEmailMap.get(a.user_id) || a.user_id, // Look up email from user_id, fallback to user_id if not found
         // created_at is stored as text/ISO string in DB; convert to standardized format
         createdAt: a.created_at ? new Date(a.created_at).toISOString() : '',
-        status: a.status || 'pending'
+        status: a.status
     }));
 
     return (
@@ -145,7 +147,7 @@ export default async function AdminDashboard() {
                 </section>
 
                 {/* Tables Section (Section B & C) */}
-                <AdminTables users={userData} analyses={formattedAnalyses} />
+                <AdminTables users={userData} analyses={formattedAnalyses as any} />
             </div>
         </div>
     );

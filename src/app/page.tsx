@@ -1,47 +1,38 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation'; // Added useSearchParams
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { account } from '@/lib/appwrite-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  CheckCircle,
-  Clock,
-  UserCircle,
-  LogOut,
-  Menu,
-  X,
-  LayoutDashboard,
-  CreditCard,
-  Settings,
-  FileText,
   Github,
-  ChevronRight,
-  ChevronDown,
-  Search as SearchIcon,
-  Search,
-  Shield,
   ArrowRight,
-  Folder,
-  Map,
-  Compass,
+  Search,
   Code2,
+  Map,
   BarChart3,
   ShieldAlert,
-  Check
-} from "lucide-react";
+  Compass,
+  CheckCircle2,
+  AlertCircle,
+  Folder,
+  FileText,
+  ChevronDown,
+  ChevronRight,
+  Check,
+  X
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRef } from 'react';
 import { CTASection } from '@/components/ui/hero-dithering-card';
 import { Reveal } from '@/components/ui/Reveal';
 
-function HomeContent() {
+export default function Home() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // Added useSearchParams hook
   const heroRef = useRef<HTMLDivElement>(null);
   const [url, setUrl] = useState('');
-  const [user, setUser] = useState<unknown>(null);
+  const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
 
@@ -50,17 +41,15 @@ function HomeContent() {
       try {
         const currentUser = await account.get();
         if (currentUser) {
-          const next = searchParams.get('next') ?? '/dashboard'; // Corrected syntax and added semicolon
-          router.replace(next); // Added router.replace(next)
+          router.replace('/dashboard');
         } else {
           setUser(null);
           setIsLoading(false);
         }
-      } catch { // Simplified catch block
-        // No session yet
-        setUser(null); // Ensure user is null if no session
+      } catch (e) {
+        setUser(null);
+        setIsLoading(false);
       }
-      setIsLoading(false); // Moved outside try/catch to ensure it always runs
     };
     checkUser();
 
@@ -104,7 +93,7 @@ function HomeContent() {
           {/* Centered Navigation Links */}
           <div className="hidden md:flex items-center gap-8">
             <Link href="#how-it-works" className="text-sm font-medium text-[#1A1A1A]/60 hover:text-[#FF7D29] transition-colors">How It Works</Link>
-            <Link href="#who-it-is-for" className="text-sm font-medium text-[#1A1A1A]/60 hover:text-[#FF7D29] transition-colors">Who It&apos;s For</Link>
+            <Link href="#who-it-is-for" className="text-sm font-medium text-[#1A1A1A]/60 hover:text-[#FF7D29] transition-colors">Who It's For</Link>
             <Link href="#pricing" className="text-sm font-medium text-[#1A1A1A]/60 hover:text-[#FF7D29] transition-colors">Pricing</Link>
           </div>
 
@@ -129,128 +118,128 @@ function HomeContent() {
       <main>
         {/* Dynamic Hero Section */}
         <Reveal>
-          <div ref={heroRef} className="px-6 pt-0 pb-24">
-            <CTASection>
-              <div className="w-full max-w-2xl mx-auto space-y-6">
-                <form onSubmit={handleInitialAnalyze} className="flex flex-col sm:flex-row gap-3">
-                  <div className="relative flex-1">
-                    <Github className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1A1A1A]/40" />
-                    <Input
-                      placeholder="https://github.com/owner/repository"
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                      className="h-14 pl-12 bg-white border-[#1A1A1A]/10 focus:border-[#FF7D29] focus:ring-[#FF7D29]/20 text-md rounded-xl shadow-sm"
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    className="h-14 px-8 bg-[#FF7D29] hover:bg-[#FF7D29]/90 text-white font-bold text-md rounded-xl shadow-md transition-all whitespace-nowrap"
-                  >
-                    Analyze for Free
-                  </Button>
-                </form>
-
-                <div className="flex items-center justify-center gap-6 pt-4">
-                  <button
-                    onClick={() => router.push('/dashboard/history')}
-                    className="text-sm font-semibold flex items-center gap-2 hover:opacity-70 transition-opacity"
-                  >
-                    View Sample Analysis <ArrowRight className="w-4 h-4" />
-                  </button>
+        <div ref={heroRef} className="px-6 pt-0 pb-24">
+          <CTASection>
+            <div className="w-full max-w-2xl mx-auto space-y-6">
+              <form onSubmit={handleInitialAnalyze} className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Github className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1A1A1A]/40" />
+                  <Input
+                    placeholder="https://github.com/owner/repository"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    className="h-14 pl-12 bg-white border-[#1A1A1A]/10 focus:border-[#FF7D29] focus:ring-[#FF7D29]/20 text-md rounded-xl shadow-sm"
+                  />
                 </div>
+                <Button
+                  type="submit"
+                  className="h-14 px-8 bg-[#FF7D29] hover:bg-[#FF7D29]/90 text-white font-bold text-md rounded-xl shadow-md transition-all whitespace-nowrap"
+                >
+                  Analyze for Free
+                </Button>
+              </form>
+
+              <div className="flex items-center justify-center gap-6 pt-4">
+                <button
+                  onClick={() => router.push('/dashboard/history')}
+                  className="text-sm font-semibold flex items-center gap-2 hover:opacity-70 transition-opacity"
+                >
+                  View Sample Analysis <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
-            </CTASection>
-          </div>
+            </div>
+          </CTASection>
+        </div>
         </Reveal>
 
         {/* Problem Section: Two-Column Layout */}
         <Reveal>
-          <section className="py-[120px] border-y border-[#1A1A1A]/5">
-            <div className="max-w-[1200px] mx-auto px-6 grid md:grid-cols-[60%_40%] gap-16 items-center">
+        <section className="py-[120px] border-y border-[#1A1A1A]/5">
+          <div className="max-w-[1200px] mx-auto px-6 grid md:grid-cols-[60%_40%] gap-16 items-center">
 
-              {/* Left: Friction Bullets */}
-              <div className="space-y-10">
-                <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-[#1A1A1A] leading-tight">
-                  Stop Wasting Hours Reading Code Blindly.
-                </h2>
+            {/* Left: Friction Bullets */}
+            <div className="space-y-10">
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-[#1A1A1A] leading-tight">
+                Stop Wasting Hours Reading Code Blindly.
+              </h2>
 
-                <div className="relative pl-8 space-y-6">
-                  <div className="absolute left-0 top-2 bottom-2 w-[2px] bg-[#FF7D29]" />
+              <div className="relative pl-8 space-y-6">
+                <div className="absolute left-0 top-2 bottom-2 w-[2px] bg-[#FF7D29]" />
+                {[
+                  "Untangling cryptic folder hierarchies without context.",
+                  "Scanning stale READMEs that don't match the code.",
+                  "Tracing deep imports just to find the actual entry point.",
+                  "Building mental maps that vanish by the next morning.",
+                  "Guessing the impact of changes in high-risk modules."
+                ].map((item, idx) => (
+                  <p key={idx} className="text-xl text-[#1A1A1A]/70 font-medium">
+                    {item}
+                  </p>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: GitHub File Explorer Mockup */}
+            <div className="relative group">
+              <div className="bg-[#F8F9FA] border border-[#1A1A1A]/10 rounded-2xl overflow-hidden shadow-xl aspect-[4/5] flex flex-col blur-[2px] opacity-60 transition-all duration-700 select-none">
+                {/* Mockup Header */}
+                <div className="px-4 py-3 border-b border-[#1A1A1A]/5 flex items-center gap-2 bg-white">
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#1A1A1A]/10" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#1A1A1A]/10" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#1A1A1A]/10" />
+                  </div>
+                  <div className="ml-4 h-3 w-32 bg-[#1A1A1A]/5 rounded" />
+                </div>
+
+                {/* Mockup Tree */}
+                <div className="p-4 space-y-4 overflow-y-auto">
                   {[
-                    "Untangling cryptic folder hierarchies without context.",
-                    "Scanning stale READMEs that don't match the code.",
-                    "Tracing deep imports just to find the actual entry point.",
-                    "Building mental maps that vanish by the next morning.",
-                    "Guessing the impact of changes in high-risk modules."
-                  ].map((item, idx) => (
-                    <p key={idx} className="text-xl text-[#1A1A1A]/70 font-medium">
-                      {item}
-                    </p>
+                    { type: 'folder', name: 'src', open: true, depth: 0 },
+                    { type: 'folder', name: 'core', open: true, depth: 1 },
+                    { type: 'file', name: 'engine.ts', depth: 2 },
+                    { type: 'folder', name: 'utils', open: false, depth: 2 },
+                    { type: 'file', name: 'types.d.ts', depth: 2 },
+                    { type: 'folder', name: 'services', open: true, depth: 1 },
+                    { type: 'file', name: 'auth.service.ts', depth: 2 },
+                    { type: 'file', name: 'data.service.ts', depth: 2 },
+                    { type: 'folder', name: 'internal', open: true, depth: 2 },
+                    { type: 'file', name: 'proxy.js', depth: 3 },
+                    { type: 'folder', name: 'infrastructure', open: false, depth: 0 },
+                    { type: 'folder', name: 'tests', open: false, depth: 0 },
+                    { type: 'file', name: 'package.json', depth: 0 },
+                    { type: 'file', name: 'README.md', depth: 0 },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2" style={{ paddingLeft: `${item.depth * 16}px` }}>
+                      {item.type === 'folder' ? (
+                        <>
+                          {item.open ? <ChevronDown className="w-4 h-4 text-[#1A1A1A]/30" /> : <ChevronRight className="w-4 h-4 text-[#1A1A1A]/30" />}
+                          <Folder className="w-4 h-4 text-[#FF7D29]/60" />
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-4 h-4" /> {/* Spacer */}
+                          <FileText className="w-4 h-4 text-[#1A1A1A]/40" />
+                        </>
+                      )}
+                      <span className="text-sm font-medium text-[#1A1A1A]/50">{item.name}</span>
+                    </div>
                   ))}
                 </div>
               </div>
 
-              {/* Right: GitHub File Explorer Mockup */}
-              <div className="relative group">
-                <div className="bg-[#F8F9FA] border border-[#1A1A1A]/10 rounded-2xl overflow-hidden shadow-xl aspect-[4/5] flex flex-col blur-[2px] opacity-60 transition-all duration-700 select-none">
-                  {/* Mockup Header */}
-                  <div className="px-4 py-3 border-b border-[#1A1A1A]/5 flex items-center gap-2 bg-white">
-                    <div className="flex gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#1A1A1A]/10" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#1A1A1A]/10" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#1A1A1A]/10" />
-                    </div>
-                    <div className="ml-4 h-3 w-32 bg-[#1A1A1A]/5 rounded" />
-                  </div>
-
-                  {/* Mockup Tree */}
-                  <div className="p-4 space-y-4 overflow-y-auto">
-                    {[
-                      { type: 'folder', name: 'src', open: true, depth: 0 },
-                      { type: 'folder', name: 'core', open: true, depth: 1 },
-                      { type: 'file', name: 'engine.ts', depth: 2 },
-                      { type: 'folder', name: 'utils', open: false, depth: 2 },
-                      { type: 'file', name: 'types.d.ts', depth: 2 },
-                      { type: 'folder', name: 'services', open: true, depth: 1 },
-                      { type: 'file', name: 'auth.service.ts', depth: 2 },
-                      { type: 'file', name: 'data.service.ts', depth: 2 },
-                      { type: 'folder', name: 'internal', open: true, depth: 2 },
-                      { type: 'file', name: 'proxy.js', depth: 3 },
-                      { type: 'folder', name: 'infrastructure', open: false, depth: 0 },
-                      { type: 'folder', name: 'tests', open: false, depth: 0 },
-                      { type: 'file', name: 'package.json', depth: 0 },
-                      { type: 'file', name: 'README.md', depth: 0 },
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-center gap-2" style={{ paddingLeft: `${item.depth * 16}px` }}>
-                        {item.type === 'folder' ? (
-                          <>
-                            {item.open ? <ChevronDown className="w-4 h-4 text-[#1A1A1A]/30" /> : <ChevronRight className="w-4 h-4 text-[#1A1A1A]/30" />}
-                            <Folder className="w-4 h-4 text-[#FF7D29]/60" />
-                          </>
-                        ) : (
-                          <>
-                            <div className="w-4 h-4" /> {/* Spacer */}
-                            <FileText className="w-4 h-4 text-[#1A1A1A]/40" />
-                          </>
-                        )}
-                        <span className="text-sm font-medium text-[#1A1A1A]/50">{item.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Overlay Prompt */}
-                <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
-                  <div className="bg-white/90 backdrop-blur-sm border border-[#FF7D29]/20 px-8 py-6 rounded-2xl shadow-2xl ring-1 ring-[#FF7D29]/10 transform -rotate-1">
-                    <p className="text-xl md:text-2xl font-bold text-[#1A1A1A] tracking-tight">
-                      &quot;Where do you even start?&quot;
-                    </p>
-                  </div>
+              {/* Overlay Prompt */}
+              <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
+                <div className="bg-white/90 backdrop-blur-sm border border-[#FF7D29]/20 px-8 py-6 rounded-2xl shadow-2xl ring-1 ring-[#FF7D29]/10 transform -rotate-1">
+                  <p className="text-xl md:text-2xl font-bold text-[#1A1A1A] tracking-tight">
+                    "Where do you even start?"
+                  </p>
                 </div>
               </div>
-
             </div>
-          </section>
+
+          </div>
+        </section>
         </Reveal>
 
         {/* Solution Section: Redesigned "What You Get" */}
@@ -360,220 +349,220 @@ function HomeContent() {
 
         {/* How It Works: SaaS Step Card Layout */}
         <Reveal>
-          <section id="how-it-works" className="bg-white py-[140px] border-b border-[#1A1A1A]/5">
-            <div className="max-w-[1200px] mx-auto px-6 space-y-20">
-              <div className="text-center space-y-4">
-                <h2 className="text-4xl font-bold tracking-tight text-[#1A1A1A]">How It Works</h2>
-                <p className="text-[#1A1A1A]/60 text-lg">From repository link to structured technical clarity.</p>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-6">
-                {[
-                  {
-                    step: "01",
-                    title: "Paste Repository Link",
-                    desc: "Provide a public GitHub URL. No tokens or special permissions required for public code."
-                  },
-                  {
-                    step: "02",
-                    title: "Automated Structural Analysis",
-                    desc: "Our engine scans folder structure, dependencies, and code patterns to understand architecture and complexity."
-                  },
-                  {
-                    step: "03",
-                    title: "Structured Technical Breakdown",
-                    desc: "Receive a focused report highlighting architecture, risk areas, maintainability signals, and entry points."
-                  },
-                ].map((item, i) => (
-                  <div key={i} className="relative bg-gradient-to-br from-white to-[#FFF5ED] rounded-xl p-10 shadow-lg hover:shadow-xl transition-all duration-500 flex flex-col items-start gap-8 min-h-[320px] border border-[#FF782D]/10 group overflow-hidden">
-                    {/* Subtle decorative glow */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF782D]/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-[#FF782D]/10 transition-colors" />
-
-                    {/* Step Badge */}
-                    <div className="w-10 h-10 bg-[#FF782D] rounded-lg flex items-center justify-center shrink-0 shadow-sm transition-transform duration-500 group-hover:scale-110">
-                      <span className="text-white font-bold text-lg">{item.step}</span>
-                    </div>
-
-                    <div className="space-y-4 text-[#1A1A1A] relative z-10">
-                      <h3 className="text-xl font-bold text-[#1A1A1A]">{item.title}</h3>
-                      <p className="text-[#1A1A1A]/70 leading-[1.7] text-md font-medium">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        <section id="how-it-works" className="bg-white py-[140px] border-b border-[#1A1A1A]/5">
+          <div className="max-w-[1200px] mx-auto px-6 space-y-20">
+            <div className="text-center space-y-4">
+              <h2 className="text-4xl font-bold tracking-tight text-[#1A1A1A]">How It Works</h2>
+              <p className="text-[#1A1A1A]/60 text-lg">From repository link to structured technical clarity.</p>
             </div>
-          </section>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  step: "01",
+                  title: "Paste Repository Link",
+                  desc: "Provide a public GitHub URL. No tokens or special permissions required for public code."
+                },
+                {
+                  step: "02",
+                  title: "Automated Structural Analysis",
+                  desc: "Our engine scans folder structure, dependencies, and code patterns to understand architecture and complexity."
+                },
+                {
+                  step: "03",
+                  title: "Structured Technical Breakdown",
+                  desc: "Receive a focused report highlighting architecture, risk areas, maintainability signals, and entry points."
+                },
+              ].map((item, i) => (
+                <div key={i} className="relative bg-gradient-to-br from-white to-[#FFF5ED] rounded-xl p-10 shadow-lg hover:shadow-xl transition-all duration-500 flex flex-col items-start gap-8 min-h-[320px] border border-[#FF782D]/10 group overflow-hidden">
+                  {/* Subtle decorative glow */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF782D]/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-[#FF782D]/10 transition-colors" />
+
+                  {/* Step Badge */}
+                  <div className="w-10 h-10 bg-[#FF782D] rounded-lg flex items-center justify-center shrink-0 shadow-sm transition-transform duration-500 group-hover:scale-110">
+                    <span className="text-white font-bold text-lg">{item.step}</span>
+                  </div>
+
+                  <div className="space-y-4 text-[#1A1A1A] relative z-10">
+                    <h3 className="text-xl font-bold text-[#1A1A1A]">{item.title}</h3>
+                    <p className="text-[#1A1A1A]/70 leading-[1.7] text-md font-medium">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
         </Reveal>
 
         {/* Who It's For: 3-Column Card Layout */}
         <Reveal>
-          <section id="who-it-is-for" className="py-[140px] bg-[#F9FAFB] border-b border-[#1A1A1A]/5">
-            <div className="max-w-[1200px] mx-auto px-6 space-y-20">
-              <div className="text-center space-y-4 max-w-3xl mx-auto">
-                <h2 className="text-4xl font-bold tracking-tight text-[#1A1A1A]">Built for engineers who deal with unfamiliar code.</h2>
-                <p className="text-[#1A1A1A]/60 text-lg">Understand architecture, structure, and real complexity — before you commit time to a repository.</p>
+        <section id="who-it-is-for" className="py-[140px] bg-[#F9FAFB] border-b border-[#1A1A1A]/5">
+          <div className="max-w-[1200px] mx-auto px-6 space-y-20">
+            <div className="text-center space-y-4 max-w-3xl mx-auto">
+              <h2 className="text-4xl font-bold tracking-tight text-[#1A1A1A]">Built for engineers who deal with unfamiliar code.</h2>
+              <p className="text-[#1A1A1A]/60 text-lg">Understand architecture, structure, and real complexity — before you commit time to a repository.</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8 items-stretch">
+              {/* Left Card: OSS */}
+              <div className="bg-white rounded-[24px] p-10 border border-[#1A1A1A]/5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col gap-6 group">
+                <h3 className="text-xl font-bold text-[#1A1A1A]">Engineers Exploring Open Source</h3>
+                <p className="text-[#1A1A1A]/70 leading-relaxed text-md">
+                  Before adopting a new dependency, quickly understand structure, entry points, and architectural signals — without manually reading the entire repo.
+                </p>
+                <div className="mt-auto pt-4 flex items-center gap-2 text-[#FF782D] font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                  Verify Architecture <ArrowRight className="w-4 h-4" />
+                </div>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-8 items-stretch">
-                {/* Left Card: OSS */}
-                <div className="bg-white rounded-[24px] p-10 border border-[#1A1A1A]/5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col gap-6 group">
-                  <h3 className="text-xl font-bold text-[#1A1A1A]">Engineers Exploring Open Source</h3>
-                  <p className="text-[#1A1A1A]/70 leading-relaxed text-md">
-                    Before adopting a new dependency, quickly understand structure, entry points, and architectural signals — without manually reading the entire repo.
-                  </p>
-                  <div className="mt-auto pt-4 flex items-center gap-2 text-[#FF782D] font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                    Verify Architecture <ArrowRight className="w-4 h-4" />
-                  </div>
+              {/* Center Card: Onboarding (Highlighted) */}
+              <div className="relative bg-white rounded-[24px] p-10 border border-[#FF782D]/20 shadow-xl hover:shadow-2xl transition-all duration-500 flex flex-col gap-6 ring-1 ring-[#FF782D]/5 -mt-4 md:-mt-8 mb-4 md:mb-8 z-10">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1.5 bg-[#FF782D] text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-md">
+                  Core Use Case
                 </div>
 
-                {/* Center Card: Onboarding (Highlighted) */}
-                <div className="relative bg-white rounded-[24px] p-10 border border-[#FF782D]/20 shadow-xl hover:shadow-2xl transition-all duration-500 flex flex-col gap-6 ring-1 ring-[#FF782D]/5 -mt-4 md:-mt-8 mb-4 md:mb-8 z-10">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1.5 bg-[#FF782D] text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-md">
-                    Core Use Case
-                  </div>
+                <h3 className="text-xl font-bold text-[#1A1A1A]">Developers Onboarding to Existing Codebases</h3>
+                <p className="text-[#1A1A1A]/70 leading-relaxed text-md">
+                  When joining a new team or inheriting legacy code, identify core modules, patterns, and risk areas in minutes — not days.
+                </p>
 
-                  <h3 className="text-xl font-bold text-[#1A1A1A]">Developers Onboarding to Existing Codebases</h3>
-                  <p className="text-[#1A1A1A]/70 leading-relaxed text-md">
-                    When joining a new team or inheriting legacy code, identify core modules, patterns, and risk areas in minutes — not days.
-                  </p>
-
-                  {/* Abstract Repo Diagram Visual */}
-                  <div className="mt-4 h-24 w-full bg-[#FF782D]/5 rounded-xl border border-[#FF782D]/10 flex items-center justify-center relative overflow-hidden">
-                    <div className="absolute inset-0 flex flex-col gap-2 p-4">
-                      <div className="flex gap-2">
-                        <div className="h-2 w-12 bg-[#FF782D]/20 rounded" />
-                        <div className="h-2 w-20 bg-[#FF782D]/10 rounded" />
-                      </div>
-                      <div className="ml-4 h-2 w-16 bg-[#FF782D]/10 rounded" />
-                      <div className="ml-8 flex gap-2">
-                        <div className="h-2 w-8 bg-[#FF782D]/40 rounded" />
-                        <div className="h-2 w-12 bg-[#FF782D]/10 rounded" />
-                      </div>
+                {/* Abstract Repo Diagram Visual */}
+                <div className="mt-4 h-24 w-full bg-[#FF782D]/5 rounded-xl border border-[#FF782D]/10 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 flex flex-col gap-2 p-4">
+                    <div className="flex gap-2">
+                      <div className="h-2 w-12 bg-[#FF782D]/20 rounded" />
+                      <div className="h-2 w-20 bg-[#FF782D]/10 rounded" />
+                    </div>
+                    <div className="ml-4 h-2 w-16 bg-[#FF782D]/10 rounded" />
+                    <div className="ml-8 flex gap-2">
+                      <div className="h-2 w-8 bg-[#FF782D]/40 rounded" />
+                      <div className="h-2 w-12 bg-[#FF782D]/10 rounded" />
                     </div>
                   </div>
-
-                  <div className="mt-auto pt-4 flex items-center gap-2 text-[#FF782D] font-bold text-sm">
-                    Speed up Onboarding <ArrowRight className="w-4 h-4" />
-                  </div>
                 </div>
 
-                {/* Right Card: Senior Review */}
-                <div className="bg-white rounded-[24px] p-10 border border-[#1A1A1A]/5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col gap-6 group">
-                  <h3 className="text-xl font-bold text-[#1A1A1A]">Senior Engineers Reviewing Technical Fit</h3>
-                  <p className="text-[#1A1A1A]/70 leading-relaxed text-md">
-                    Before approving integrations or refactors, get a high-level architectural understanding without digging through every file.
-                  </p>
-                  <div className="mt-auto pt-4 flex items-center gap-2 text-[#FF782D] font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                    Audit Systems <ArrowRight className="w-4 h-4" />
-                  </div>
+                <div className="mt-auto pt-4 flex items-center gap-2 text-[#FF782D] font-bold text-sm">
+                  Speed up Onboarding <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+
+              {/* Right Card: Senior Review */}
+              <div className="bg-white rounded-[24px] p-10 border border-[#1A1A1A]/5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col gap-6 group">
+                <h3 className="text-xl font-bold text-[#1A1A1A]">Senior Engineers Reviewing Technical Fit</h3>
+                <p className="text-[#1A1A1A]/70 leading-relaxed text-md">
+                  Before approving integrations or refactors, get a high-level architectural understanding without digging through every file.
+                </p>
+                <div className="mt-auto pt-4 flex items-center gap-2 text-[#FF782D] font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                  Audit Systems <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
         </Reveal>
 
         {/* Pricing: Clean 2-Column SaaS Layout */}
         <Reveal>
-          <section id="pricing" className="bg-[#F9FAFB] py-[140px] border-t border-[#1A1A1A]/5">
-            <div className="max-w-[1200px] mx-auto px-6 space-y-16">
-              <div className="text-center space-y-4">
-                <h2 className="text-4xl font-bold tracking-tight text-[#1A1A1A]">Simple, transparent pricing.</h2>
-                <p className="text-[#1A1A1A]/60 text-lg font-medium">Cheaper than one hour of engineering time.</p>
+        <section id="pricing" className="bg-[#F9FAFB] py-[140px] border-t border-[#1A1A1A]/5">
+          <div className="max-w-[1200px] mx-auto px-6 space-y-16">
+            <div className="text-center space-y-4">
+              <h2 className="text-4xl font-bold tracking-tight text-[#1A1A1A]">Simple, transparent pricing.</h2>
+              <p className="text-[#1A1A1A]/60 text-lg font-medium">Cheaper than one hour of engineering time.</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
+              {/* Free Tier Card */}
+              <div className="bg-white border border-[#1A1A1A]/5 rounded-[32px] p-10 shadow-sm flex flex-col gap-8 transition-all hover:shadow-md">
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <h3 className="text-xl font-bold text-[#1A1A1A]">Free</h3>
+                    <p className="text-sm font-medium text-[#1A1A1A]/50">For exploring and testing</p>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-5xl font-bold text-[#1A1A1A]">$0</span>
+                    <span className="text-sm font-medium text-[#1A1A1A]/40">/ forever</span>
+                  </div>
+                </div>
+
+                <div className="space-y-4 flex-1">
+                  <p className="text-sm font-bold text-[#1A1A1A]/40 uppercase tracking-widest">Includes:</p>
+                  <ul className="space-y-4">
+                    {[
+                      { included: true, text: "4 deep repo analyses (lifetime)" },
+                      { included: true, text: "Architecture mapping & entry points" },
+                      { included: true, text: "Basic structural overview" },
+                      { included: false, text: "Analysis history" },
+                      { included: false, text: "Large repository support" },
+                      { included: false, text: "Priority processing" },
+                    ].map((feature, i) => (
+                      <li key={i} className="flex items-center gap-3 text-sm font-medium">
+                        {feature.included ? (
+                          <Check className="w-4 h-4 text-[#FF782D]" />
+                        ) : (
+                          <X className="w-4 h-4 text-[#1A1A1A]/20" />
+                        )}
+                        <span className={feature.included ? "text-[#1A1A1A]" : "text-[#1A1A1A]/40"}>
+                          {feature.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <Button
+                  onClick={() => router.push('/login')}
+                  className="w-full h-14 bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-white font-bold rounded-2xl transition-all"
+                >
+                  Start Free
+                </Button>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
-                {/* Free Tier Card */}
-                <div className="bg-white border border-[#1A1A1A]/5 rounded-[32px] p-10 shadow-sm flex flex-col gap-8 transition-all hover:shadow-md">
-                  <div className="space-y-4">
-                    <div className="space-y-1">
-                      <h3 className="text-xl font-bold text-[#1A1A1A]">Free</h3>
-                      <p className="text-sm font-medium text-[#1A1A1A]/50">For exploring and testing</p>
-                    </div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-5xl font-bold text-[#1A1A1A]">$0</span>
-                      <span className="text-sm font-medium text-[#1A1A1A]/40">/ forever</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 flex-1">
-                    <p className="text-sm font-bold text-[#1A1A1A]/40 uppercase tracking-widest">Includes:</p>
-                    <ul className="space-y-4">
-                      {[
-                        { included: true, text: "4 deep repo analyses (lifetime)" },
-                        { included: true, text: "Architecture mapping & entry points" },
-                        { included: true, text: "Basic structural overview" },
-                        { included: false, text: "Analysis history" },
-                        { included: false, text: "Large repository support" },
-                        { included: false, text: "Priority processing" },
-                      ].map((feature, i) => (
-                        <li key={i} className="flex items-center gap-3 text-sm font-medium">
-                          {feature.included ? (
-                            <Check className="w-4 h-4 text-[#FF782D]" />
-                          ) : (
-                            <X className="w-4 h-4 text-[#1A1A1A]/20" />
-                          )}
-                          <span className={feature.included ? "text-[#1A1A1A]" : "text-[#1A1A1A]/40"}>
-                            {feature.text}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <Button
-                    onClick={() => router.push('/login')}
-                    className="w-full h-14 bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-white font-bold rounded-2xl transition-all"
-                  >
-                    Start Free
-                  </Button>
+              {/* Pro Tier Card (Highlighted) */}
+              <div className="relative bg-white border-2 border-[#FF782D]/20 rounded-[32px] p-10 shadow-xl flex flex-col gap-8 transition-all hover:shadow-2xl ring-1 ring-[#FF782D]/5 scale-105 z-10">
+                <div className="absolute top-0 right-10 -translate-y-1/2 bg-[#FF782D] text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg">
+                  Recommended
                 </div>
 
-                {/* Pro Tier Card (Highlighted) */}
-                <div className="relative bg-white border-2 border-[#FF782D]/20 rounded-[32px] p-10 shadow-xl flex flex-col gap-8 transition-all hover:shadow-2xl ring-1 ring-[#FF782D]/5 scale-105 z-10">
-                  <div className="absolute top-0 right-10 -translate-y-1/2 bg-[#FF782D] text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg">
-                    Recommended
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <h3 className="text-xl font-bold text-[#1A1A1A]">Pro</h3>
+                    <p className="text-sm font-medium text-[#1A1A1A]/50">For engineers evaluating code daily</p>
                   </div>
-
-                  <div className="space-y-4">
-                    <div className="space-y-1">
-                      <h3 className="text-xl font-bold text-[#1A1A1A]">Pro</h3>
-                      <p className="text-sm font-medium text-[#1A1A1A]/50">For engineers evaluating code daily</p>
-                    </div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-5xl font-bold text-[#1A1A1A]">$10</span>
-                      <span className="text-sm font-medium text-[#1A1A1A]/40">/ month</span>
-                    </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-5xl font-bold text-[#1A1A1A]">$10</span>
+                    <span className="text-sm font-medium text-[#1A1A1A]/40">/ month</span>
                   </div>
-
-                  <div className="space-y-4 flex-1">
-                    <p className="text-sm font-bold text-[#FF782D] uppercase tracking-widest">All Free features, plus:</p>
-                    <ul className="space-y-4">
-                      {[
-                        { included: true, text: "Unlimited analyses (fair use)" },
-                        { included: true, text: "Large repository support" },
-                        { included: true, text: "Detailed architecture breakdown" },
-                        { included: true, text: "Risk & complexity signals" },
-                        { included: true, text: "Analysis history" },
-                        { included: true, text: "Priority processing" },
-                      ].map((feature, i) => (
-                        <li key={i} className="flex items-center gap-3 text-sm font-medium">
-                          <Check className="w-4 h-4 text-[#FF782D]" />
-                          <span className="text-[#1A1A1A]">{feature.text}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <Button
-                    onClick={() => router.push('/login')}
-                    className="w-full h-14 bg-[#FF782D] hover:bg-[#FF782D]/90 text-white font-bold rounded-2xl shadow-lg transition-all"
-                  >
-                    Upgrade to Pro
-                  </Button>
                 </div>
+
+                <div className="space-y-4 flex-1">
+                  <p className="text-sm font-bold text-[#FF782D] uppercase tracking-widest">All Free features, plus:</p>
+                  <ul className="space-y-4">
+                    {[
+                      { included: true, text: "Unlimited analyses (fair use)" },
+                      { included: true, text: "Large repository support" },
+                      { included: true, text: "Detailed architecture breakdown" },
+                      { included: true, text: "Risk & complexity signals" },
+                      { included: true, text: "Analysis history" },
+                      { included: true, text: "Priority processing" },
+                    ].map((feature, i) => (
+                      <li key={i} className="flex items-center gap-3 text-sm font-medium">
+                        <Check className="w-4 h-4 text-[#FF782D]" />
+                        <span className="text-[#1A1A1A]">{feature.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <Button
+                  onClick={() => router.push('/login')}
+                  className="w-full h-14 bg-[#FF782D] hover:bg-[#FF782D]/90 text-white font-bold rounded-2xl shadow-lg transition-all"
+                >
+                  Upgrade to Pro
+                </Button>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
         </Reveal>
 
         {/* High-Impact Final CTA Hero Block */}
@@ -616,7 +605,6 @@ function HomeContent() {
               <Link href="/" className="text-xl font-bold tracking-tight text-[#1A1A1A]">
                 Check<span className="text-[#FF7D29]">Before</span>Commit
               </Link>
-              <p className="text-[#1A1A1A]/70 text-md leading-relaxed">Join 2,000+ engineers who use our structured insights to master technical complexity. It&apos;s fast, free, and built for modern teams.</p>
               <p className="text-[#1A1A1A]/60 text-sm leading-relaxed max-w-xs">
                 Structured technical insights for engineers working with unfamiliar codebases.
               </p>
@@ -665,13 +653,5 @@ function HomeContent() {
         </div>
       </footer>
     </div>
-  );
-}
-
-export default function Home() {
-  return (
-    <Suspense fallback={null}>
-      <HomeContent />
-    </Suspense>
   );
 }

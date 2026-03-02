@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Shield, LayoutDashboard, UserCircle, LogOut, CheckCircle2, Layout } from 'lucide-react';
+import { CheckCircle2, Github, LogOut, Layout } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/app/auth/actions';
@@ -27,19 +27,16 @@ export function Navbar({ user, freeTries }: NavbarProps) {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsMounted(true);
     }, []);
 
     const handleSignOut = async () => {
         setIsLoggingOut(true);
-        const res = await signOut();
-        if (res.success) {
-            setIsLogoutModalOpen(false);
-            router.push('/');
-            router.refresh();
-        } else {
+        try {
+            await signOut();
+        } finally {
             setIsLoggingOut(false);
+            setIsLogoutModalOpen(false);
         }
     };
 

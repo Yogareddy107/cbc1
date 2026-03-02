@@ -28,7 +28,7 @@ export default function PrivacyPolicyPage() {
             <div>
               <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">1. Introduction</h2>
               <p className="text-[#1A1A1A]/80 leading-relaxed">
-                CheckBeforeCommit (&quot;we,&quot; &quot;our,&quot; &quot;us,&quot; or the &quot;Company&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.
+                CheckBeforeCommit ("we", "our", "us", or the "Company") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.
               </p>
             </div>
 
@@ -45,7 +45,6 @@ export default function PrivacyPolicyPage() {
             </div>
 
             <div>
-              <p className="text-muted-foreground text-lg">&quot;Your data is yours. We just help you understand it.&quot;</p>
               <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">3. How We Use Your Information</h2>
               <p className="text-[#1A1A1A]/80 leading-relaxed mb-4">We use the information we collect to:</p>
               <ul className="list-disc list-inside space-y-2 text-[#1A1A1A]/80">

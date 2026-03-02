@@ -23,7 +23,7 @@ export async function createAnalysis(repoUrl: string) {
     // Initialize the record with 'pending' status
     const [data] = await db.insert(analyses).values({
         id: crypto.randomUUID(),
-        userId: user.$id,
+        user_id: user.$id,
         repo_url: repoUrl,
         status: 'pending'
     }).returning({ id: analyses.id });
@@ -52,7 +52,7 @@ export async function runAnalysis(analysisId: string, repoUrl: string) {
         // 1. Mark as 'running'
         await db.update(analyses)
             .set({ status: 'running' })
-            .where(and(eq(analyses.id, analysisId), eq(analyses.userId, user.$id)));
+            .where(and(eq(analyses.id, analysisId), eq(analyses.user_id, user.$id)));
 
         // 2. Parse URL for GitHub API
         const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
@@ -80,7 +80,7 @@ export async function runAnalysis(analysisId: string, repoUrl: string) {
                 summary: summary,
                 updated_at: new Date().toISOString()
             })
-            .where(and(eq(analyses.id, analysisId), eq(analyses.userId, user.$id)))
+            .where(and(eq(analyses.id, analysisId), eq(analyses.user_id, user.$id)))
             .returning();
 
         if (!updated) throw new Error("Analysis record not found for update");
@@ -97,7 +97,7 @@ export async function runAnalysis(analysisId: string, repoUrl: string) {
                 error_message: errorMessage,
                 updated_at: new Date().toISOString()
             })
-            .where(and(eq(analyses.id, analysisId), eq(analyses.userId, user.$id)));
+            .where(and(eq(analyses.id, analysisId), eq(analyses.user_id, user.$id)));
 
         return { success: false, error: errorMessage };
     }
@@ -117,7 +117,7 @@ export async function deleteAnalysis(analysisId: string) {
     }
 
     await db.delete(analyses)
-        .where(and(eq(analyses.id, analysisId), eq(analyses.userId, user.$id)));
+        .where(and(eq(analyses.id, analysisId), eq(analyses.user_id, user.$id)));
 
     return { success: true };
 }

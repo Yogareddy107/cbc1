@@ -16,10 +16,10 @@ export async function GET(request: Request) {
         // If we have userId and secret from OAuth callback, create session
         if (userId && secret) {
             const { account } = await createAdminClient();
-
+            
             // Create a session with the OAuth credentials
             const session = await account.createSession(userId, secret);
-
+            
             (await cookies()).set('appwrite-session', session.secret, {
                 path: '/',
                 httpOnly: true,
@@ -40,12 +40,12 @@ export async function GET(request: Request) {
         } catch (e) {
             // No session yet
         }
-    } catch (e) {
-        const errorMessage = e instanceof Error ? e.message : 'Authentication failed';
+    } catch (e: any) {
         console.error('OAuth callback error:', e);
-        return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(errorMessage)}`)
+        return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(e.message || 'Authentication failed')}`)
     }
 
     // return the user to login if authentication failed
     return NextResponse.redirect(`${origin}/login?error=Authentication required`)
 }
+

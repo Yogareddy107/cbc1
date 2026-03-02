@@ -18,7 +18,7 @@ export default async function PlanPage() {
         );
     }
 
-    const subs = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.userId, user.$id)).orderBy(sql`${subscriptionsTable.created_at} DESC`).limit(1);
+    const subs = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.user_id, user.$id)).orderBy(sql`${subscriptionsTable.created_at} DESC`).limit(1);
     const currentSub = subs[0] || null;
 
     const currentPlanName = currentSub ? 'Pro' : 'Free Usage';
@@ -27,7 +27,7 @@ export default async function PlanPage() {
     const [analysisCountResult] = await db.select({ value: count() })
         .from(analysesTable)
         .where(and(
-            eq(analysesTable.userId, user.$id),
+            eq(analysesTable.user_id, user.$id),
             sql`date(${analysesTable.created_at}) >= date('now','start of month')`
         ));
     const analysesThisMonth = analysisCountResult?.value || 0;
@@ -35,7 +35,7 @@ export default async function PlanPage() {
     const [charSumResult] = await db.select({ value: sql<number>`SUM(LENGTH(${analysesTable.result}))` })
         .from(analysesTable)
         .where(and(
-            eq(analysesTable.userId, user.$id),
+            eq(analysesTable.user_id, user.$id),
             sql`date(${analysesTable.created_at}) >= date('now','start of month')`
         ));
     const totalChars = charSumResult?.value || 0;
@@ -180,7 +180,7 @@ export default async function PlanPage() {
                         </div>
 
                         {/* use PlanActions for handling upgrade/manage */}
-                        <PlanActions userId={user.$id} currentSub={currentSub ? { plan: currentSub.plan || 'free', status: currentSub.status || 'active' } : null} />
+                        <PlanActions userId={user.$id} currentSub={currentSub ? { plan: 'pro', status: currentSub.status || 'active' } : null} />
                     </div>
                 </div>
                 <p className="text-xs text-muted-foreground mt-4 italic">Billed once per month. Cancel anytime.</p>
