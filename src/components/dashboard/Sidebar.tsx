@@ -12,11 +12,23 @@ const navItems = [
     { name: 'Profile', href: '/dashboard/profile', icon: User },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+    open?: boolean;
+    onClose?: () => void;
+}
+
+export function Sidebar({ open = false, onClose }: SidebarProps) {
     const pathname = usePathname();
 
     return (
-        <aside className="w-64 border-r border-[#1A1A1A]/5 bg-[#FFFDF6] flex flex-col fixed inset-y-0 left-0 z-50">
+        <aside
+            className={cn(
+                "w-64 border-r border-[#1A1A1A]/5 bg-[#FFFDF6] flex flex-col fixed inset-y-0 left-0 z-50",
+                // slide in/out on mobile
+                open ? "translate-x-0" : "-translate-x-full",
+                "transition-transform duration-200 lg:translate-x-0 lg:static lg:inset-auto"
+            )}
+        >
             <div className="p-6 border-b border-border/20 flex items-center gap-2">
                 <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
                     <CheckCircle2 className="text-primary w-6 h-6" />
@@ -31,6 +43,7 @@ export function Sidebar() {
                         <Link
                             key={item.href}
                             href={item.href}
+                            onClick={() => onClose?.()}
                             className={cn(
                                 "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
                                 isActive

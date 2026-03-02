@@ -13,15 +13,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogoutConfirmModal } from '@/components/ui/LogoutConfirmModal';
 import { useState } from 'react';
-import { User, LogOut, MessageSquare } from 'lucide-react';
+import { User, LogOut, MessageSquare, Menu } from 'lucide-react';
 
 interface TopBarProps {
     user: {
         email?: string;
     } | null;
+    onHamburger?: () => void;
 }
 
-export function TopBar({ user }: TopBarProps) {
+export function TopBar({ user, onHamburger }: TopBarProps) {
     const router = useRouter();
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -40,14 +41,27 @@ export function TopBar({ user }: TopBarProps) {
 
 
     return (
-        <header className="h-14 border-b border-[#1A1A1A]/5 bg-[#FFFDF6]/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-end px-6 gap-6">
-            <a
-                href="mailto:feedback@checkbeforecommit.com"
-                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
-            >
-                <MessageSquare className="w-3 h-3" />
-                Send Feedback
-            </a>
+        <header className="h-14 border-b border-[#1A1A1A]/5 bg-[#FFFDF6]/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-6 gap-6">
+            <div className="flex items-center gap-4">
+                {/* hamburger for mobile */}
+                {onHamburger && (
+                    <button
+                        className="lg:hidden p-2 rounded-md hover:bg-secondary/50"
+                        onClick={onHamburger}
+                        aria-label="Open menu"
+                    >
+                        <Menu className="w-6 h-6" />
+                    </button>
+                )}
+
+                <a
+                    href="mailto:feedback@checkbeforecommit.com"
+                    className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+                >
+                    <MessageSquare className="w-3 h-3" />
+                    Send Feedback
+                </a>
+            </div>
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>

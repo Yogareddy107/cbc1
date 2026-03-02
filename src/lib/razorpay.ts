@@ -40,13 +40,14 @@ export async function createRazorpayCustomer(email: string, name?: string) {
  */
 export async function createRazorpaySubscription(options: RazorpaySubscriptionOptions) {
   try {
+    // razorpay typings are a bit narrow; cast to any to avoid property errors
     const subscription = await razorpay.subscriptions.create({
       plan_id: options.plan_id,
       customer_id: options.customer_id,
       quantity: options.quantity || 1,
       total_count: options.total_count || 12, // 12 months by default
       start_at: options.start_at,
-    });
+    } as any);
     return subscription;
   } catch (error) {
     console.error('Error creating Razorpay subscription:', error);
@@ -79,6 +80,9 @@ export async function cancelRazorpaySubscription(subscriptionId: string) {
     throw error;
   }
 }
+
+// alias for older imports (build error indicated missing cancelSubscription export)
+export const cancelSubscription = cancelRazorpaySubscription;
 
 /**
  * Create a payment order (for one-time payments)

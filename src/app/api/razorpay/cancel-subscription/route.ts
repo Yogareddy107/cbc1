@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { subscriptions } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { cancelSubscription as razorpayCancel } from '@/lib/razorpay';
+import { cancelRazorpaySubscription as razorpayCancel } from '@/lib/razorpay';
 
 export async function POST(req: Request) {
     try {
@@ -18,17 +18,17 @@ export async function POST(req: Request) {
             .where(eq(subscriptions.id, subscriptionId))
             .limit(1);
         const sub = subs[0];
-        if (!sub || sub.user_id !== userId) {
+        if (!sub || sub.user_id !== userId || !sub.razorpay_subscription_id) {
             return NextResponse.json({ error: 'subscription not found' }, { status: 404 });
         }
 
-        // ask Razorpay to cancel
+        // ask Razorpay to cancel (id is non-null now)
         await razorpayCancel(sub.razorpay_subscription_id);
 
         // update our record
         await db
             .update(subscriptions)
-            .set({ status: 'cancelled' })
+            .set({ status: 'canceled' })
             .where(eq(subscriptions.id, sub.id));
 
         return NextResponse.json({ success: true });
