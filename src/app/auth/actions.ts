@@ -64,10 +64,10 @@ export async function signInWithGitHub() {
     try {
         const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/github-callback`;
         const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1';
+        const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
-        // Appwrite will handle the OAuth flow and redirect back to the success URL
-        // Appwrite creates the session internally before redirecting
-        const authUrl = `${endpoint}/account/sessions/oauth2/github?success=${encodeURIComponent(redirectUrl)}&failure=${encodeURIComponent(redirectUrl)}`;
+        // Appwrite REST API requires the project parameter for OAuth2
+        const authUrl = `${endpoint}/account/sessions/oauth2/github?project=${projectId}&success=${encodeURIComponent(redirectUrl)}&failure=${encodeURIComponent(redirectUrl + '?error=github_auth_failed')}`;
         return { url: authUrl };
     } catch (error: any) {
         console.error('GitHub OAuth error:', error);
@@ -80,10 +80,10 @@ export async function signInWithGoogle() {
     try {
         const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/google-callback`;
         const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1';
+        const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
 
-        // Appwrite will handle the OAuth flow and redirect back to the success URL
-        // Appwrite creates the session internally before redirecting
-        const authUrl = `${endpoint}/account/sessions/oauth2/google?success=${encodeURIComponent(redirectUrl)}&failure=${encodeURIComponent(redirectUrl)}`;
+        // Appwrite REST API requires the project parameter for OAuth2
+        const authUrl = `${endpoint}/account/sessions/oauth2/google?project=${projectId}&success=${encodeURIComponent(redirectUrl)}&failure=${encodeURIComponent(redirectUrl + '?error=google_auth_failed')}`;
         return { url: authUrl };
     } catch (error: any) {
         console.error('Google OAuth error:', error);
@@ -95,17 +95,17 @@ export async function signInWithGoogle() {
 export async function handleGitHubCallback(userId: string, secret: string) {
     try {
         const { account } = await createAdminClient();
-        
+
         // Create session using the OAuth credentials from callback
         const session = await account.createSession(userId, secret);
-        
+
         (await cookies()).set('appwrite-session', session.secret, {
             path: '/',
             httpOnly: true,
             sameSite: 'strict',
             secure: true,
         });
-        
+
         return { success: true, message: 'GitHub authentication successful' };
     } catch (error: any) {
         console.error('GitHub callback error:', error);
