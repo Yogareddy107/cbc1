@@ -75,7 +75,8 @@ export default async function AdminDashboard() {
         const [totalRevenueResult] = await db.select({ value: sum(subscriptionsTable.amount) })
             .from(subscriptionsTable)
             .where(eq(subscriptionsTable.status, 'active'));
-        totalRevenue = totalRevenueResult?.value || 0;
+        // sum can return string depending on driver; coerce to number
+        totalRevenue = Number(totalRevenueResult?.value) || 0;
 
         // Paid Subscribers Count (count of subscriptions where status is 'active')
         const [paidSubscribersResult] = await db.select({ value: count() })
