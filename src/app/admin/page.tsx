@@ -117,7 +117,8 @@ export default async function AdminDashboard() {
         id: a.id,
         repoUrl: a.repo_url,
         userEmail: userEmailMap.get(a.user_id) || a.user_id, // Look up email from user_id, fallback to user_id if not found
-        createdAt: a.created_at ? (a.created_at instanceof Date ? a.created_at.toISOString() : String(a.created_at)) : '',
+        // created_at is stored as text/ISO string in DB; convert to standardized format
+        createdAt: a.created_at ? new Date(a.created_at).toISOString() : '',
         status: a.status
     }));
 
