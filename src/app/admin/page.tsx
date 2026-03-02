@@ -53,9 +53,10 @@ export default async function AdminDashboard() {
     // Analyses last 7 days
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    // Drizzle column is string; convert date to ISO string for comparison
     const [analysesLast7DaysResult] = await db.select({ value: count() })
         .from(analysesTable)
-        .where(gt(analysesTable.created_at, sevenDaysAgo));
+        .where(gt(analysesTable.created_at, sevenDaysAgo.toISOString()));
     const analysesLast7Days = analysesLast7DaysResult.value;
 
     // Analyses today
@@ -63,7 +64,7 @@ export default async function AdminDashboard() {
     todayStart.setHours(0, 0, 0, 0);
     const [analysesTodayResult] = await db.select({ value: count() })
         .from(analysesTable)
-        .where(gt(analysesTable.created_at, todayStart));
+        .where(gt(analysesTable.created_at, todayStart.toISOString()));
     const analysesToday = analysesTodayResult.value;
 
     // Total Subscription Money (sum of amounts where status is 'active')
