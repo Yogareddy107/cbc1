@@ -21,10 +21,16 @@ export default async function HistoryPage() {
     }
 
 
-    const analyses = await db.select()
+    const rawAnalyses = await db.select()
         .from(analysesTable)
-        .where(eq(analysesTable.user_id, user.$id))
+        .where(eq(analysesTable.userId, user.$id))
         .orderBy(desc(analysesTable.created_at));
+
+    const analyses = rawAnalyses.map(a => ({
+        ...a,
+        status: a.status || 'pending',
+        created_at: a.created_at || new Date().toISOString()
+    }));
 
     return (
         <div className="max-w-6xl mx-auto px-6 py-12 space-y-10">
@@ -51,7 +57,7 @@ export default async function HistoryPage() {
                     <p className="text-xs text-muted-foreground max-w-[200px] mx-auto">Start by analyzing your first repository from the dashboard.</p>
                 </div>
             ) : (
-                <HistoryTable initialAnalyses={analyses as any} />
+                <HistoryTable initialAnalyses={analyses} />
             )}
         </div>
     );

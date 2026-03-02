@@ -31,8 +31,8 @@ export function AnalysisRunner({ analysisId, repoUrl, initialStatus }: AnalysisR
                         setError(res.error || "Analysis failed.");
                         setStatus('failed');
                     }
-                } catch (err: any) {
-                    setError(err.message || "An unexpected error occurred.");
+                } catch (err) {
+                    setError(err instanceof Error ? err.message : "An unexpected error occurred.");
                     setStatus('failed');
                 }
             };
@@ -66,8 +66,8 @@ export function AnalysisRunner({ analysisId, repoUrl, initialStatus }: AnalysisR
                 <h2 className="text-2xl font-bold tracking-tight">
                     {status === 'pending' ? 'Preparing Analysis...' : 'Analyzing Repository...'}
                 </h2>
-                <p className="text-muted-foreground animate-pulse">
-                    This might take a minute. We're mapping out the codebase architecture.
+                <p className="text-sm text-muted-foreground italic">
+                    This usually takes around 30-60 seconds. Grab a coffee, we&apos;re mapping the territory.
                 </p>
             </div>
         </div>

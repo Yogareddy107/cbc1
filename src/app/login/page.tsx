@@ -1,38 +1,34 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CheckCircle2, Loader2, AlertCircle, Compass, Eye, EyeOff } from 'lucide-react';
-import { signInWithEmail, signUpWithEmail, signInWithGoogle } from '../auth/actions';
+import { signInWithEmail, signUpWithEmail, signInWithGitHub } from '../auth/actions';
 
 
 function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [mode, setMode] = useState<'signin' | 'signup'>('signup');
+    const isLimitReached = searchParams.get('meta') === 'limit_reached';
+    const authError = searchParams.get('error');
+
+    const [mode, setMode] = useState<'signin' | 'signup'>(isLimitReached ? 'signup' : 'signin');
     const [forgotMode, setForgotMode] = useState(false);
     const [emailValue, setEmailValue] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(authError ? decodeURIComponent(authError) : null);
     const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const next = searchParams.get('next') || '/dashboard';
-    const isLimitReached = searchParams.get('meta') === 'limit_reached';
-
-    useEffect(() => {
-        if (isLimitReached) {
-            setMode('signup');
-        }
-    }, [isLimitReached]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setLoading(true);
+        setIsLoading(true);
         setError('');
         setSuccess('');
 
@@ -42,18 +38,18 @@ function LoginContent() {
 
         if (mode === 'signup' && password !== confirmPassword) {
             setError('Passwords do not match.');
-            setLoading(false);
+            setIsLoading(false);
             return;
         }
 
         try {
             const res = (mode === 'signin'
                 ? await signInWithEmail(formData)
-                : await signUpWithEmail(formData)) as any;
+                : await signUpWithEmail(formData)) as { success: boolean; error?: string; isAdmin?: boolean; message?: string };
 
             if (res?.error) {
                 setError(res.error);
-                setLoading(false);
+                setIsLoading(false);
             } else if (res?.success) {
                 setSuccess(res.message || 'Success! Redirecting...');
                 // if the user is an admin, go to admin dashboard regardless of `next`
@@ -63,19 +59,62 @@ function LoginContent() {
                     router.push(next);
                 }
             }
-        } catch (err: any) {
-            if (err.message !== 'NEXT_REDIRECT') {
-                setError(err.message || 'An unexpected error occurred.');
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred.';
+            if (errorMessage !== 'NEXT_REDIRECT') {
+                setError(errorMessage);
             }
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
-    const handleGoogleLogin = async () => {
-        // Appwrite OAuth implementation for SSR is usually done client-side first
-        // or through a server action that returns the OAuth URL.
-        // For this migration, we'll keep it as a placeholder or redirect to login.
-        setError('Google Login is being migrated. Please use email/password for now.');
+    const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError('');
+        setSuccess('');
+
+        try {
+            const formData = new FormData(e.currentTarget);
+            const email = formData.get('email') as string;
+            // Simulated recovery call as in previous version
+            const res = await fetch('/api/auth/recover', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, redirectUrl: window.location.origin + '/reset-password' })
+            });
+            const data = await res.json();
+            if (data?.error) {
+                setError(data.error);
+            } else {
+                setSuccess(data.message || 'If the email exists, a recovery link was sent.');
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to send reset link.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleGitHubLogin = async () => {
+        try {
+            setError('');
+            setIsLoading(true);
+            const result = await signInWithGitHub();
+            if (result?.error) {
+                setError(result.error);
+                setIsLoading(false);
+            } else if (result?.url) {
+                window.location.href = result.url;
+            } else {
+                setError('Unknown OAuth response');
+                setIsLoading(false);
+            }
+        } catch (err) {
+            console.error('GitHub login error:', err);
+            setError(err instanceof Error ? err.message : 'Failed to initiate GitHub login');
+            setIsLoading(false);
+        }
     };
 
 
@@ -99,7 +138,7 @@ function LoginContent() {
                 <div className="relative z-10 p-16 max-w-xl space-y-12">
                     <div className="flex items-center gap-3 text-2xl font-bold tracking-tight text-white backdrop-blur-md bg-white/10 w-fit px-6 py-3 rounded-2xl border border-white/20 shadow-xl">
                         <Compass className="text-white w-6 h-6" />
-                        CheckBeforeCommit
+                        Check<span className="text-[#FF7D29]">Before</span>Commit
                     </div>
                     <div className="space-y-8">
                         <h2 className="text-5xl font-bold tracking-tight text-white leading-[1.1]">
@@ -131,7 +170,7 @@ function LoginContent() {
                     <div className="space-y-2 lg:hidden">
                         <div className="flex items-center gap-2 text-xl font-bold tracking-tight text-[#1A1A1A]">
                             <Compass className="text-[#FF7D29] w-6 h-6" />
-                            CheckBeforeCommit
+                            Check<span className="text-[#FF7D29]">Before</span>Commit
                         </div>
                     </div>
 
@@ -161,16 +200,13 @@ function LoginContent() {
                         <Button
                             variant="outline"
                             className="w-full h-14 text-md font-bold border-[#1A1A1A]/5 hover:bg-white hover:border-[#1A1A1A]/10 bg-white shadow-sm transition-all flex items-center justify-center gap-3 rounded-2xl group"
-                            onClick={handleGoogleLogin}
-                            disabled={loading}
+                            onClick={handleGitHubLogin}
+                            disabled={isLoading}
                         >
                             <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
-                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-5.38z" fill="#EA4335" />
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                             </svg>
-                            Continue with Google
+                            Continue with GitHub
                         </Button>
 
                         <div className="relative">
@@ -184,9 +220,17 @@ function LoginContent() {
 
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {error && (
-                                <div className="p-4 text-sm rounded-2xl bg-red-50 border border-red-100 text-red-600 flex items-center gap-3 font-medium">
-                                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                                    {error}
+                                <div className="space-y-3">
+                                    <div className="p-4 text-sm rounded-2xl bg-red-50 border border-red-100 text-red-600 flex items-center gap-3 font-medium">
+                                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                                        {error}
+                                    </div>
+                                    {error.toLowerCase().includes('github') && (
+                                        <div className="p-3 text-xs rounded-lg bg-blue-50 border border-blue-100 text-blue-700">
+                                            <p className="font-semibold mb-1">💡 GitHub OAuth Issue?</p>
+                                            <p className="mb-2">Check our <a href="/oauth-diagnostics" className="font-bold text-[#FF7D29] hover:underline">OAuth Diagnostics</a> page for help.</p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                             {success && (
@@ -237,40 +281,35 @@ function LoginContent() {
                                     </button>
                                 </div>
                             </div>
-                                {forgotMode && mode === 'signin' && (
-                                    <div className="p-4 rounded-lg border border-[#EAEAEA] bg-white/50 space-y-3">
-                                        <p className="text-sm text-[#1A1A1A]/70">Enter your email and we'll send a password reset link.</p>
-                                        <div className="flex gap-2">
-                                            <Input
-                                                type="email"
-                                                placeholder="name@company.com"
-                                                value={emailValue}
-                                                onChange={(e) => setEmailValue(e.target.value)}
-                                                className="h-12"
-                                            />
-                                            <Button onClick={async () => {
-                                                if (!emailValue) return setError('Please enter your email');
-                                                setError('');
-                                                setSuccess('');
-                                                try {
-                                                    const res = await fetch('/api/auth/recover', {
-                                                        method: 'POST',
-                                                        headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify({ email: emailValue, redirectUrl: window.location.origin + '/reset-password' })
-                                                    });
-                                                    const data = await res.json();
-                                                    if (data?.error) setError(data.error);
-                                                    else setSuccess(data.message || 'If the email exists, a recovery link was sent.');
-                                                } catch (e: any) {
-                                                    setError('Failed to send recovery email');
-                                                }
-                                            }} className="h-12">Send</Button>
-                                        </div>
-                                        <div>
-                                            <button className="text-xs text-[#666] hover:underline" type="button" onClick={() => setForgotMode(false)}>Cancel</button>
-                                        </div>
+                            {forgotMode && mode === 'signin' && (
+                                <div className="p-4 rounded-lg border border-[#EAEAEA] bg-white/50 space-y-3">
+                                    <p className="text-sm text-[#1A1A1A]/70">Enter your email and we&apos;ll send a password reset link.</p>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            type="email"
+                                            placeholder="name@company.com"
+                                            value={emailValue}
+                                            onChange={(e) => setEmailValue(e.target.value)}
+                                            className="h-12"
+                                        />
+                                        <Button onClick={() => {
+                                            if (!emailValue) return setError('Please enter your email');
+                                            const form = document.createElement('form');
+                                            const input = document.createElement('input');
+                                            input.name = 'email';
+                                            input.value = emailValue;
+                                            form.appendChild(input);
+                                            handleForgotPassword({
+                                                preventDefault: () => { },
+                                                currentTarget: form
+                                            } as unknown as React.FormEvent<HTMLFormElement>);
+                                        }} className="h-12">Send</Button>
                                     </div>
-                                )}
+                                    <div>
+                                        <button className="text-xs text-[#666] hover:underline" type="button" onClick={() => setForgotMode(false)}>Cancel</button>
+                                    </div>
+                                </div>
+                            )}
                             {mode === 'signup' && (
                                 <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-300">
                                     <Label htmlFor="confirmPassword" className="text-[#1A1A1A]/60 font-bold text-xs uppercase tracking-wider ml-1">Confirm Password</Label>
@@ -295,8 +334,8 @@ function LoginContent() {
                                 </div>
                             )}
 
-                            <Button type="submit" className="w-full h-14 text-md font-bold bg-[#FF7D29] text-white hover:bg-[#FF7D29]/90 shadow-lg shadow-[#FF7D29]/20 transition-all active:scale-[0.98] rounded-2xl" disabled={loading}>
-                                {loading ? <Loader2 className="animate-spin" /> : mode === 'signin' ? 'Sign in' : 'Create free account'}
+                            <Button type="submit" className="w-full h-14 text-md font-bold bg-[#FF7D29] text-white hover:bg-[#FF7D29]/90 shadow-lg shadow-[#FF7D29]/20 transition-all active:scale-[0.98] rounded-2xl" disabled={isLoading}>
+                                {isLoading ? <Loader2 className="animate-spin" /> : mode === 'signin' ? 'Sign in' : 'Create free account'}
                             </Button>
                         </form>
 

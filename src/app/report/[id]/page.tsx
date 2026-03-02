@@ -4,6 +4,7 @@ import { createSessionClient } from '@/lib/appwrite';
 import { notFound } from 'next/navigation';
 import { AnalysisReport } from '@/components/AnalysisReport';
 import { AnalysisRunner } from '@/components/AnalysisRunner';
+import { AnalysisResult } from '@/lib/llm/client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft, Share2 } from 'lucide-react';
@@ -18,15 +19,15 @@ interface ReportPageProps {
 
 export default async function ReportPage({ params: paramsPromise }: ReportPageProps) {
     const params = await paramsPromise;
-    let user: { $id: string, email: string } | null = null;
+    let user: { id: string, email: string } | null = null;
     try {
         const { account } = await createSessionClient();
         const appwriteUser = await account.get();
         user = {
-            $id: appwriteUser.$id,
+            id: appwriteUser.$id,
             email: appwriteUser.email,
         };
-    } catch (e) {
+    } catch {
         // User might not be logged in
     }
 
@@ -43,7 +44,7 @@ export default async function ReportPage({ params: paramsPromise }: ReportPagePr
     }
 
     const isCompleted = analysis.status === 'completed';
-    const result = analysis.result;
+    const result = analysis.result as AnalysisResult | null;
 
     return (
         <div className="min-h-screen bg-background text-foreground font-sans">
@@ -64,12 +65,12 @@ export default async function ReportPage({ params: paramsPromise }: ReportPagePr
 
             <main className="max-w-4xl mx-auto px-6 py-12">
                 {isCompleted && result ? (
-                    <AnalysisReport data={result as any} repoUrl={analysis.repo_url} />
+                    <AnalysisReport data={result} repoUrl={analysis.repo_url} />
                 ) : (
                     <AnalysisRunner
                         analysisId={analysis.id}
                         repoUrl={analysis.repo_url}
-                        initialStatus={analysis.status as any}
+                        initialStatus={analysis.status || 'pending'}
                     />
                 )}
             </main>

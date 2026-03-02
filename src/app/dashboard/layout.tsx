@@ -1,7 +1,6 @@
 import { createSessionClient } from '@/lib/appwrite';
 import { redirect } from 'next/navigation';
-import { Sidebar } from '@/components/dashboard/Sidebar';
-import { TopBar } from '@/components/dashboard/TopBar';
+import { DashboardShell } from '@/components/dashboard/DashboardShell';
 
 export default async function DashboardLayout({
     children,
@@ -23,19 +22,8 @@ export default async function DashboardLayout({
 
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex">
-            {/* Sidebar (Fixed) */}
-            <Sidebar />
-
-            <div className="flex-1 ml-64 flex flex-col">
-                {/* TopBar (Sticky) */}
-                <TopBar user={user} />
-
-                {/* Workspace Area */}
-                <main className="flex-1 overflow-y-auto">
-                    {children}
-                </main>
-            </div>
-        </div>
+        <DashboardShell user={user}>
+            {children}
+        </DashboardShell>
     );
 }

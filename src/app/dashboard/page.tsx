@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { db } from '@/lib/db';
 import { analyses as analysesTable } from '@/lib/db/schema';
 import { createSessionClient } from '@/lib/appwrite';
@@ -25,7 +26,7 @@ export default async function DashboardPage() {
     // Fetch recent analyses using Drizzle
     const analyses = await db.select()
         .from(analysesTable)
-        .where(eq(analysesTable.user_id, user.$id))
+        .where(eq(analysesTable.userId, user.$id))
         .orderBy(desc(analysesTable.created_at))
         .limit(5);
 
@@ -40,7 +41,9 @@ export default async function DashboardPage() {
                     </p>
                 </div>
 
-                <NewAnalysisForm />
+                <Suspense fallback={<div className="h-10 animate-pulse bg-secondary/20 rounded-xl" />}>
+                    <NewAnalysisForm />
+                </Suspense>
             </section>
 
             {/* Recent Analyses Section */}

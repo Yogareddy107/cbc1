@@ -48,7 +48,7 @@ export async function getRepoData(owner: string, repo: string) {
         description: repoData.description,
         stars: repoData.stargazers_count,
         language: repoData.language,
-        tree: treeData.tree.map((t: any) => t.path).slice(0, 300), // Limit to top 300 files for context window
+        tree: (treeData.tree as { path: string }[]).map((t) => t.path).slice(0, 300), // Limit to top 300 files for context window
         readme: readmeContent.slice(0, 8000), // Limit README size
         packageJson: packageJsonContent
     };

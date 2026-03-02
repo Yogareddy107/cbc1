@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CheckCircle2, Github, LogOut, Layout } from 'lucide-react';
+import { Shield, LayoutDashboard, UserCircle, LogOut, CheckCircle2, Layout } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/app/auth/actions';
@@ -27,6 +27,7 @@ export function Navbar({ user, freeTries }: NavbarProps) {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsMounted(true);
     }, []);
 
@@ -49,7 +50,7 @@ export function Navbar({ user, freeTries }: NavbarProps) {
             <nav className="border-b border-border/40 p-4 flex justify-between items-center bg-background/80 backdrop-blur-md sticky top-0 z-50">
                 <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-foreground">
                     <CheckCircle2 className="text-primary w-6 h-6" />
-                    <span className="hidden sm:inline">CheckBeforeCommit</span>
+                    <span className="hidden sm:inline">Check<span className="text-[#FF7D29]">Before</span>Commit</span>
                     <span className="sm:hidden text-primary">CBC</span>
                 </div>
                 <div className="h-9 w-20 bg-secondary/20 rounded animate-pulse" />
@@ -62,7 +63,7 @@ export function Navbar({ user, freeTries }: NavbarProps) {
             <nav className="border-b border-border/40 p-4 flex justify-between items-center bg-background/80 backdrop-blur-md sticky top-0 z-50">
                 <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-foreground hover:opacity-90 transition-opacity">
                     <CheckCircle2 className="text-primary w-6 h-6" />
-                    <span className="hidden sm:inline">CheckBeforeCommit</span>
+                    <span className="hidden sm:inline">Check<span className="text-[#FF7D29]">Before</span>Commit</span>
                     <span className="sm:hidden text-primary">CBC</span>
                 </Link>
 

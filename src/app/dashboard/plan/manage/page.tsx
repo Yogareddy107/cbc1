@@ -22,7 +22,7 @@ export default async function ManageBillingPage() {
     const subs = await db
         .select()
         .from(subscriptions)
-        .where(eq(subscriptions.user_id, user.$id))
+        .where(eq(subscriptions.userId, user.$id))
         .orderBy(sql`${subscriptions.created_at} DESC`)
         .limit(1);
 
@@ -44,11 +44,11 @@ export default async function ManageBillingPage() {
                 <div className="space-y-4">
                     <p>Status: {currentSub.status}</p>
                     <p>Amount: ${currentSub.amount?.toFixed(2)}</p>
-                    <p>Next period ends: {new Date(currentSub.current_period_end).toLocaleDateString()}</p>
+                    <p>Next period ends: {currentSub.current_period_end ? new Date(currentSub.current_period_end * 1000).toLocaleDateString() : 'N/A'}</p>
                     {currentSub.status === 'active' && (
                         <CancelSubscriptionButton
                             userId={user.$id}
-                            subscriptionId={currentSub.razorpay_subscription_id}
+                            subscriptionId={currentSub.razorpay_subscription_id || ''}
                         />
                     )}
                 </div>

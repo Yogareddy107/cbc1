@@ -7,10 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 
-export default function ResetPasswordPage() {
+import { Suspense } from 'react';
+
+function ResetPasswordContent() {
     const search = useSearchParams();
     const router = useRouter();
-    const userId = search.get('userId') || search.get('userId') || '';
+    const userId = search.get('userId') || '';
     const secret = search.get('secret') || '';
 
     const [password, setPassword] = useState('');
@@ -68,5 +70,13 @@ export default function ResetPasswordPage() {
                 </form>
             </div>
         </div>
+    );
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ResetPasswordContent />
+        </Suspense>
     );
 }

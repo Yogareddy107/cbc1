@@ -1,6 +1,6 @@
 import { CreditCard, Rocket, Check, X } from 'lucide-react';
 import { analyses as analysesTable, subscriptions as subscriptionsTable } from '@/lib/db/schema';
-import { count, eq, sql } from 'drizzle-orm';
+import { count, eq, sql, and } from 'drizzle-orm';
 import { createSessionClient } from '@/lib/appwrite';
 import { db } from '@/lib/db';
 import PlanActions from '@/components/PlanActions';
@@ -18,7 +18,7 @@ export default async function PlanPage() {
         );
     }
 
-    const subs = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.user_id, user.$id)).orderBy(sql`${subscriptionsTable.created_at} DESC`).limit(1);
+    const subs = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.userId, user.$id)).orderBy(sql`${subscriptionsTable.created_at} DESC`).limit(1);
     const currentSub = subs[0] || null;
 
     const currentPlanName = currentSub ? 'Pro' : 'Free Usage';
@@ -26,15 +26,19 @@ export default async function PlanPage() {
     // quota and token usage for the current month
     const [analysisCountResult] = await db.select({ value: count() })
         .from(analysesTable)
-        .where(eq(analysesTable.user_id, user.$id))
-        .where(sql`date(${analysesTable.created_at}) >= date('now','start of month')`);
-    const analysesThisMonth = analysisCountResult.value || 0;
+        .where(and(
+            eq(analysesTable.userId, user.$id),
+            sql`date(${analysesTable.created_at}) >= date('now','start of month')`
+        ));
+    const analysesThisMonth = analysisCountResult?.value || 0;
 
     const [charSumResult] = await db.select({ value: sql<number>`SUM(LENGTH(${analysesTable.result}))` })
         .from(analysesTable)
-        .where(eq(analysesTable.user_id, user.$id))
-        .where(sql`date(${analysesTable.created_at}) >= date('now','start of month')`);
-    const totalChars = charSumResult.value || 0;
+        .where(and(
+            eq(analysesTable.userId, user.$id),
+            sql`date(${analysesTable.created_at}) >= date('now','start of month')`
+        ));
+    const totalChars = charSumResult?.value || 0;
     const tokensUsed = Math.floor(totalChars / 4); // estimate
 
 
@@ -54,7 +58,7 @@ export default async function PlanPage() {
                         <p className="text-xs font-bold uppercase tracking-widest text-[#1A1A1A]/40">Current Plan</p>
                         <h2 className="text-2xl font-bold text-[#1A1A1A]">{currentPlanName}</h2>
                         {currentSub && (
-                            <p className="text-sm text-[#666]">Since {new Date(currentSub.created_at).toLocaleDateString()}</p>
+                            <p className="text-sm text-[#666]">Since {currentSub.created_at ? new Date(currentSub.created_at).toLocaleDateString() : 'N/A'}</p>
                         )}
                     </div>
                     <a href="/dashboard/plan/manage" className="gap-2 border-[#1A1A1A]/10 hover:bg-[#F7F7F7] inline-flex items-center px-3 py-2 rounded text-sm border">
@@ -176,7 +180,7 @@ export default async function PlanPage() {
                         </div>
 
                         {/* use PlanActions for handling upgrade/manage */}
-                        <PlanActions userId={user.$id} currentSub={currentSub} />
+                        <PlanActions userId={user.$id} currentSub={currentSub ? { plan: currentSub.plan || 'free', status: currentSub.status || 'active' } : null} />
                     </div>
                 </div>
                 <p className="text-xs text-muted-foreground mt-4 italic">Billed once per month. Cancel anytime.</p>

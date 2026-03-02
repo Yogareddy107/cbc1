@@ -18,7 +18,7 @@ export async function POST(req: Request) {
             .where(eq(subscriptions.id, subscriptionId))
             .limit(1);
         const sub = subs[0];
-        if (!sub || sub.user_id !== userId || !sub.razorpay_subscription_id) {
+        if (!sub || sub.userId !== userId || !sub.razorpay_subscription_id) {
             return NextResponse.json({ error: 'subscription not found' }, { status: 404 });
         }
 
@@ -32,8 +32,9 @@ export async function POST(req: Request) {
             .where(eq(subscriptions.id, sub.id));
 
         return NextResponse.json({ success: true });
-    } catch (e: any) {
+    } catch (e) {
+        const message = e instanceof Error ? e.message : 'unknown error';
         console.error('cancel subscription error', e);
-        return NextResponse.json({ error: e.message || 'unknown error' }, { status: 500 });
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

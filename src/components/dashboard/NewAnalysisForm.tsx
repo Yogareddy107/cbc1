@@ -30,7 +30,7 @@ export function NewAnalysisForm() {
             if (res.id) {
                 router.push(`/report/${res.id}`);
             }
-        } catch (err: any) {
+        } catch (err) {
             console.error("Analysis creation failed:", err);
         } finally {
             setLoading(false);

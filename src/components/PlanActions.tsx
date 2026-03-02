@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export default function PlanActions({ userId, currentSub }: { userId: string; currentSub: any | null }) {
+export default function PlanActions({ userId, currentSub }: { userId: string; currentSub: { plan: string; status: string } | null }) {
     const [loading, setLoading] = useState(false);
 
     async function loadScript(src: string) {
@@ -37,7 +37,7 @@ export default function PlanActions({ userId, currentSub }: { userId: string; cu
                 name: 'CheckBeforeCommit',
                 description: 'Pro Subscription',
                 order_id: data.id,
-                handler: async function (response: any) {
+                handler: async function (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) {
                     try {
                         const verifyRes = await fetch('/api/razorpay/verify-payment', {
                             method: 'POST',
@@ -64,7 +64,7 @@ export default function PlanActions({ userId, currentSub }: { userId: string; cu
             };
 
             // @ts-ignore
-            const rzp = new window.Razorpay(options);
+            const rzp = new (window as any).Razorpay(options);
             rzp.open();
         } catch (err) {
             console.error(err);

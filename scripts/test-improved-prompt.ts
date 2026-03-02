@@ -5,6 +5,7 @@ import * as path from 'path';
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 import { analyzeRepo } from '../src/lib/llm/client';
+import { ZodError } from 'zod';
 
 async function main() {
     try {
@@ -17,10 +18,10 @@ async function main() {
             language: "TypeScript",
             description: "A simple TypeScript project for testing",
             tree: [
-                { path: "src/index.ts", type: "file" },
-                { path: "src/utils.ts", type: "file" },
-                { path: "package.json", type: "file" },
-                { path: "README.md", type: "file" }
+                "src/index.ts",
+                "src/utils.ts",
+                "package.json",
+                "README.md"
             ]
         };
 
@@ -83,13 +84,14 @@ async function main() {
         console.log("- Refactor Safety:", result.executiveVerdict.refactorSafety);
         console.log("- Production Readiness:", result.executiveVerdict.productionReadiness);
 
-    } catch (error: any) {
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
         console.error("\n❌ FAILURE: Analysis failed with error:");
-        console.error(error.message);
+        console.error(errorMessage);
 
-        if (error.name === 'ZodError') {
+        if (error instanceof ZodError) {
             console.error("\n📋 Zod Validation Errors:");
-            console.error(JSON.stringify(error.errors, null, 2));
+            console.error(JSON.stringify(error.issues, null, 2));
         }
 
         process.exit(1);

@@ -2,18 +2,19 @@
 
 import { AnalysisResult } from '@/lib/llm/client';
 import {
-    Activity, ShieldCheck, Zap, Server, Database, Layout, GitBranch,
-    Play, AlertTriangle, CheckCircle2, XCircle, HelpCircle,
-    TrendingUp, Box, Layers, MousePointerClick, Lock, Users,
-    Thermometer, Gauge, Component, Globe, Construction, BookOpen,
-    Network, ArrowRight
+    Activity, ShieldCheck, Zap, Server, Layout, GitBranch,
+    Play, AlertTriangle, CheckCircle2, XCircle,
+    TrendingUp, Box, Lock, Users,
+    Thermometer, Component, Globe, Construction, BookOpen,
+    Network, ArrowRight,
+    FileText, AlertCircle, Clock, Info, ChevronRight, Download, Share2, Bug, Shield, Smartphone, Code2, History
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
 // --- Helper Components ---
 
-function SectionHeader({ title, icon: Icon, className }: { title: string, icon?: any, className?: string }) {
+function SectionHeader({ title, icon: Icon, className }: { title: string, icon?: React.ElementType, className?: string }) {
     return (
         <div className={cn("flex items-center gap-3 mb-6", className)}>
             <div className="p-2 rounded-lg bg-primary/10 text-primary">
@@ -299,7 +300,7 @@ function DependencyAnalysis({ data }: { data: AnalysisResult['dependencyAnalysis
                     <h4 className="font-bold mb-3 flex items-center gap-2 text-blue-700">
                         <ArrowRight className="w-4 h-4" /> Top Consumers
                     </h4>
-                    <p className="text-xs text-muted-foreground mb-3">Files with the heaviest import footprint.</p>
+                    <p className="text-xs text-muted-foreground mt-2">Each circle represents a file. The size shows complexity, lines show how they&apos;re coupled.</p>
                     <ul className="space-y-2">
                         {data.topConsumers?.map((node, i) => (
                             <li key={i} className="text-sm font-mono bg-secondary/30 px-2 py-1 rounded truncate border border-border/50">{node}</li>
@@ -458,7 +459,7 @@ function TestingProfile({ data }: { data: AnalysisResult['testingProfile'] }) {
                         <TrafficLight level={data.refactorSafetyRating === 'High' ? 'Strong' : data.refactorSafetyRating === 'Moderate' ? 'Medium' : 'Weak'} />
                         <span className="font-bold text-lg">{data.refactorSafetyRating}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2 px-4 italic">"{data.mockingStrategy}"</p>
+                    <p className="text-xs text-muted-foreground mt-2 px-4 italic">&quot;{data.mockingStrategy}&quot;</p>
                 </Card>
             </div>
         </section>
@@ -582,7 +583,7 @@ function Onboarding({ data }: { data: AnalysisResult['onboarding'] }) {
                 <div className="flex items-start gap-3">
                     <Construction className="w-5 h-5 text-amber-600 mt-0.5" />
                     <div className="flex-1">
-                        <h4 className="text-sm font-bold text-amber-600 mb-2">💡 If You're Joining This Project</h4>
+                        <h4 className="text-sm font-bold text-amber-600 mb-2">💡 If You&apos;re Joining This Project</h4>
                         <p className="text-sm text-foreground/90 leading-relaxed">{data.firstDayAdvice}</p>
                     </div>
                 </div>

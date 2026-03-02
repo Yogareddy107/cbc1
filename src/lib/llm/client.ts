@@ -292,13 +292,13 @@ const openai = new OpenAI({
     }
 });
 
-function detectProbableEntryPoints(tree: any[] = []): string {
+function detectProbableEntryPoints(tree: string[] = []): string {
     try {
         if (!Array.isArray(tree)) {
             return "\nDETECTION HINTS: Repository tree data is not available for entry point analysis.\n";
         }
 
-        const paths = tree.map(n => n?.path).filter(Boolean);
+        const paths = tree.filter(Boolean);
         const hints: string[] = [];
 
         // Framework detection
@@ -332,7 +332,13 @@ function detectProbableEntryPoints(tree: any[] = []): string {
     }
 }
 
-export async function analyzeRepo(repoData: any) {
+export async function analyzeRepo(repoData: {
+    name: string;
+    owner: string;
+    description: string;
+    language: string;
+    tree: string[];
+}) {
     const model = "openai/gpt-4o-mini"; // High performance / low cost for structured output
     const detectionHints = detectProbableEntryPoints(repoData?.tree);
 

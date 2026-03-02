@@ -16,13 +16,14 @@ export async function createAnalysis(repoUrl: string) {
     try {
         const { account } = await createSessionClient();
         user = await account.get();
-    } catch (e) {
+    } catch {
         throw new Error("Authentication required to create an analysis record.");
     }
 
     // Initialize the record with 'pending' status
     const [data] = await db.insert(analyses).values({
-        user_id: user.$id,
+        id: crypto.randomUUID(),
+        userId: user.$id,
         repo_url: repoUrl,
         status: 'pending'
     }).returning({ id: analyses.id });
@@ -43,7 +44,7 @@ export async function runAnalysis(analysisId: string, repoUrl: string) {
     try {
         const { account } = await createSessionClient();
         user = await account.get();
-    } catch (e) {
+    } catch {
         throw new Error("Unauthorized");
     }
 
@@ -51,7 +52,7 @@ export async function runAnalysis(analysisId: string, repoUrl: string) {
         // 1. Mark as 'running'
         await db.update(analyses)
             .set({ status: 'running' })
-            .where(and(eq(analyses.id, analysisId), eq(analyses.user_id, user.$id)));
+            .where(and(eq(analyses.id, analysisId), eq(analyses.userId, user.$id)));
 
         // 2. Parse URL for GitHub API
         const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
@@ -79,25 +80,26 @@ export async function runAnalysis(analysisId: string, repoUrl: string) {
                 summary: summary,
                 updated_at: new Date().toISOString()
             })
-            .where(and(eq(analyses.id, analysisId), eq(analyses.user_id, user.$id)))
+            .where(and(eq(analyses.id, analysisId), eq(analyses.userId, user.$id)))
             .returning();
 
         if (!updated) throw new Error("Analysis record not found for update");
 
         return { success: true, data: updated.result };
-    } catch (err: any) {
+    } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
         console.error(`Analysis ${analysisId} failed:`, err);
 
         // 6. Record failure in the same record
         await db.update(analyses)
             .set({
                 status: 'failed',
-                error_message: err.message || "An unexpected error occurred during analysis.",
+                error_message: errorMessage,
                 updated_at: new Date().toISOString()
             })
-            .where(and(eq(analyses.id, analysisId), eq(analyses.user_id, user.$id)));
+            .where(and(eq(analyses.id, analysisId), eq(analyses.userId, user.$id)));
 
-        return { success: false, error: err.message };
+        return { success: false, error: errorMessage };
     }
 }
 
@@ -110,13 +112,12 @@ export async function deleteAnalysis(analysisId: string) {
     try {
         const { account } = await createSessionClient();
         user = await account.get();
-    } catch (e) {
+    } catch {
         throw new Error("Authentication required to delete an analysis.");
     }
 
     await db.delete(analyses)
-        .where(and(eq(analyses.id, analysisId), eq(analyses.user_id, user.$id)));
+        .where(and(eq(analyses.id, analysisId), eq(analyses.userId, user.$id)));
 
     return { success: true };
 }
-
