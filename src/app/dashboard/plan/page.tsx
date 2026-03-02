@@ -18,28 +18,40 @@ export default async function PlanPage() {
         );
     }
 
-    const subs = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.user_id, user.$id)).orderBy(sql`${subscriptionsTable.created_at} DESC`).limit(1);
-    const currentSub = subs[0] || null;
+    let currentSub = null;
+    let currentPlanName = 'Free Usage';
+    let analysesThisMonth = 0;
+    let tokensUsed = 0;
 
-    const currentPlanName = currentSub ? 'Pro' : 'Free Usage';
+    try {
+        const subs = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.user_id, user.$id)).orderBy(sql`${subscriptionsTable.created_at} DESC`).limit(1);
+        currentSub = subs[0] || null;
+        currentPlanName = currentSub ? 'Pro' : 'Free Usage';
+    } catch (e) {
+        console.error('Error fetching subscriptions:', e);
+    }
 
-    // quota and token usage for the current month
-    const [analysisCountResult] = await db.select({ value: count() })
-        .from(analysesTable)
-        .where(and(
-            eq(analysesTable.user_id, user.$id),
-            sql`date(${analysesTable.created_at}) >= date('now','start of month')`
-        ));
-    const analysesThisMonth = analysisCountResult?.value || 0;
+    try {
+        // quota and token usage for the current month
+        const [analysisCountResult] = await db.select({ value: count() })
+            .from(analysesTable)
+            .where(and(
+                eq(analysesTable.user_id, user.$id),
+                sql`date(${analysesTable.created_at}) >= date('now','start of month')`
+            ));
+        analysesThisMonth = analysisCountResult?.value || 0;
 
-    const [charSumResult] = await db.select({ value: sql<number>`SUM(LENGTH(${analysesTable.result}))` })
-        .from(analysesTable)
-        .where(and(
-            eq(analysesTable.user_id, user.$id),
-            sql`date(${analysesTable.created_at}) >= date('now','start of month')`
-        ));
-    const totalChars = charSumResult?.value || 0;
-    const tokensUsed = Math.floor(totalChars / 4); // estimate
+        const [charSumResult] = await db.select({ value: sql<number>`SUM(LENGTH(${analysesTable.result}))` })
+            .from(analysesTable)
+            .where(and(
+                eq(analysesTable.user_id, user.$id),
+                sql`date(${analysesTable.created_at}) >= date('now','start of month')`
+            ));
+        const totalChars = charSumResult?.value || 0;
+        tokensUsed = Math.floor(totalChars / 4); // estimate
+    } catch (e) {
+        console.error('Error fetching analysis stats:', e);
+    }
 
 
     return (
