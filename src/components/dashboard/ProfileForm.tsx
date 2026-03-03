@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Shield, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { account } from '@/lib/appwrite-client';
+import { updateProfileName, updateProfilePassword } from '@/app/dashboard/profile/actions';
 
 interface ProfileFormProps {
     user: {
@@ -26,11 +26,15 @@ export function ProfileForm({ user }: ProfileFormProps) {
         setMessage(null);
 
         try {
-            await account.updateName(name);
-            setMessage({ type: 'success', text: 'Name updated successfully!' });
+            const result = await updateProfileName(name);
+            if (result.success) {
+                setMessage({ type: 'success', text: 'Name updated successfully!' });
+            } else {
+                setMessage({ type: 'error', text: result.error || 'Failed to update name.' });
+            }
         } catch (error: any) {
             console.error('Error updating name:', error);
-            setMessage({ type: 'error', text: error.message || 'Failed to update name.' });
+            setMessage({ type: 'error', text: 'An unexpected error occurred.' });
         } finally {
             setIsUpdatingName(false);
         }
@@ -41,20 +45,21 @@ export function ProfileForm({ user }: ProfileFormProps) {
         setMessage(null);
 
         try {
-            // Appwrite's updatePassword requires the new password. 
-            // For a better UX, we might want a modal here to ask for the new password.
-            // For now, we'll redirect to a password recovery flow or implement a simple prompt for testing.
             const newPassword = window.prompt('Enter your new password:');
             if (!newPassword) {
                 setIsUpdatingPassword(false);
                 return;
             }
 
-            await account.updatePassword(newPassword);
-            setMessage({ type: 'success', text: 'Password updated successfully!' });
+            const result = await updateProfilePassword(newPassword);
+            if (result.success) {
+                setMessage({ type: 'success', text: 'Password updated successfully!' });
+            } else {
+                setMessage({ type: 'error', text: result.error || 'Failed to update password.' });
+            }
         } catch (error: any) {
             console.error('Error updating password:', error);
-            setMessage({ type: 'error', text: error.message || 'Failed to update password.' });
+            setMessage({ type: 'error', text: 'An unexpected error occurred.' });
         } finally {
             setIsUpdatingPassword(false);
         }
@@ -64,8 +69,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
         <div className="space-y-12">
             {message && (
                 <div className={`p-4 rounded-xl border flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${message.type === 'success'
-                        ? 'bg-green-500/10 border-green-500/20 text-green-600'
-                        : 'bg-destructive/10 border-destructive/20 text-destructive'
+                    ? 'bg-green-500/10 border-green-500/20 text-green-600'
+                    : 'bg-destructive/10 border-destructive/20 text-destructive'
                     }`}>
                     {message.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
                     <p className="text-sm font-medium">{message.text}</p>
