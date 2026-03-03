@@ -266,36 +266,57 @@ function LoginContent() {
                                 </div>
                             </div>
                             {forgotMode && mode === 'signin' && (
-                                <div className="p-4 rounded-lg border border-[#EAEAEA] bg-white/50 space-y-3">
-                                    <p className="text-sm text-[#1A1A1A]/70">Enter your email and we'll send a password reset link.</p>
+                                <div className="p-6 rounded-2xl border border-[#FF7D29]/20 bg-[#FF7D29]/5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-bold text-[#1A1A1A]">Reset your password</p>
+                                        <p className="text-xs text-[#1A1A1A]/60 font-medium">Enter your email and we'll send a recovery link.</p>
+                                    </div>
                                     <div className="flex gap-2">
                                         <Input
                                             type="email"
                                             placeholder="name@company.com"
                                             value={emailValue}
                                             onChange={(e) => setEmailValue(e.target.value)}
-                                            className="h-12"
+                                            className="h-12 bg-white border-[#1A1A1A]/10 focus:border-[#FF7D29] focus:ring-[#FF7D29]/20 transition-all rounded-xl shadow-sm"
                                         />
-                                        <Button onClick={async () => {
-                                            if (!emailValue) return setError('Please enter your email');
-                                            setError('');
-                                            setSuccess('');
-                                            try {
-                                                const res = await fetch('/api/auth/recover', {
-                                                    method: 'POST',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({ email: emailValue, redirectUrl: window.location.origin + '/reset-password' })
-                                                });
-                                                const data = await res.json();
-                                                if (data?.error) setError(data.error);
-                                                else setSuccess(data.message || 'If the email exists, a recovery link was sent.');
-                                            } catch (e: any) {
-                                                setError('Failed to send recovery email');
-                                            }
-                                        }} className="h-12">Send</Button>
+                                        <Button
+                                            onClick={async () => {
+                                                if (!emailValue) return setError('Please enter your email');
+                                                setLoading(true);
+                                                setError('');
+                                                setSuccess('');
+                                                try {
+                                                    const res = await fetch('/api/auth/recover', {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({
+                                                            email: emailValue,
+                                                            redirectUrl: window.location.origin + '/reset-password'
+                                                        })
+                                                    });
+                                                    const data = await res.json();
+                                                    if (data?.error) setError(data.error);
+                                                    else setSuccess(data.message || 'If the email exists, a recovery link was sent.');
+                                                } catch (e: any) {
+                                                    setError('Failed to send recovery email');
+                                                } finally {
+                                                    setLoading(false);
+                                                }
+                                            }}
+                                            className="h-12 bg-[#FF7D29] text-white hover:bg-[#FF7D29]/90 font-bold px-6 rounded-xl"
+                                            disabled={loading}
+                                        >
+                                            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send'}
+                                        </Button>
                                     </div>
-                                    <div>
-                                        <button className="text-xs text-[#666] hover:underline" type="button" onClick={() => setForgotMode(false)}>Cancel</button>
+                                    <div className="flex justify-end">
+                                        <button
+                                            className="text-xs font-bold text-[#1A1A1A]/40 hover:text-[#1A1A1A] transition-colors"
+                                            type="button"
+                                            onClick={() => setForgotMode(false)}
+                                        >
+                                            Go back
+                                        </button>
                                     </div>
                                 </div>
                             )}

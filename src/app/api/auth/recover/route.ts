@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAdminClient } from '@/lib/appwrite';
+import { Client, Account } from 'node-appwrite';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,22 +8,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
     }
 
-    const { users, account } = await createAdminClient();
+    // We use a regular client (no API key) to trigger recovery
+    // This is a public-facing action in Appwrite
+    const client = new Client()
+      .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+      .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
 
-    // Find user by email
-    const list = await users.list();
-    const found = list.users.find(u => u.email?.toLowerCase() === email.toLowerCase());
+    const account = new Account(client);
 
-    if (!found) {
-      return NextResponse.json({ success: true, message: 'If the email exists, a recovery link will be sent.' });
-    }
-
-    // createRecovery requires userId and redirect URL
-    await account.createRecovery(found.$id, redirectUrl);
+    // Appwrite's createRecovery takes (email, url)
+    await account.createRecovery(email, redirectUrl);
 
     return NextResponse.json({ success: true, message: 'Recovery email sent (if the address exists).' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Recovery error:', error);
-    return NextResponse.json({ error: 'Failed to initiate recovery' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Failed to initiate recovery' }, { status: 500 });
   }
 }
