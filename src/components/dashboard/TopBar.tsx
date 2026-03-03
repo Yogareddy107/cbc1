@@ -53,7 +53,7 @@ export function TopBar({ user, onHamburger }: TopBarProps) {
                 )}
 
                 <a
-                    href="mailto:feedback@checkbeforecommit.com"
+                    href="mailto:teamintrasphere@gmail.com"
                     className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
                 >
                     <MessageSquare className="w-3 h-3" />

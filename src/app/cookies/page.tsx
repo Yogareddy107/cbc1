@@ -35,7 +35,7 @@ export default function CookiePolicyPage() {
             <div>
               <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">2. What Cookies Do We Use?</h2>
               <p className="text-[#1A1A1A]/80 leading-relaxed mb-4">CheckBeforeCommit uses the following types of cookies:</p>
-              
+
               <div className="space-y-4">
                 <div>
                   <h3 className="font-semibold text-[#1A1A1A] mb-2">Essential Cookies</h3>
@@ -131,8 +131,8 @@ export default function CookiePolicyPage() {
               <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">9. Contact Us</h2>
               <p className="text-[#1A1A1A]/80 leading-relaxed">
                 If you have questions about our Cookie Policy or how we use cookies, please contact us at:{' '}
-                <a href="mailto:teamintreasphere@gmail.com" className="text-[#FF7D29] hover:underline">
-                  teamintreasphere@gmail.com
+                <a href="mailto:teamintrasphere@gmail.com" className="text-[#FF7D29] hover:underline">
+                  teamintrasphere@gmail.com
                 </a>
               </p>
             </div>

@@ -572,7 +572,7 @@ export default function LandingClient() {
                         <div className="space-y-6">
                             <h4 className="text-sm font-bold text-[#1A1A1A]">Connect</h4>
                             <ul className="space-y-3 text-sm text-[#1A1A1A]/60">
-                                <li><Link href="mailto:teamintreasphere@gmail.com" className="hover:text-[#FF7D29] transition-colors">Contact</Link></li>
+                                <li><Link href="mailto:teamintrasphere@gmail.com" className="hover:text-[#FF7D29] transition-colors">Contact</Link></li>
                                 <li><Link href="https://github.com" target="_blank" className="hover:text-[#FF7D29] transition-colors">GitHub</Link></li>
                             </ul>
                         </div>

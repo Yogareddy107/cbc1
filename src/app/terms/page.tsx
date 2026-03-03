@@ -101,15 +101,12 @@ export default function TermsOfServicePage() {
               </ul>
             </div>
 
-            <div>
-              <h2 className="text-2xl font-bold text-[#1A1A1A] mb-4">10. Contact Information</h2>
-              <p className="text-[#1A1A1A]/80 leading-relaxed">
-                If you have any questions about these Terms of Service, please contact us at:{' '}
-                <a href="mailto:teamintreasphere@gmail.com" className="text-[#FF7D29] hover:underline">
-                  teamintreasphere@gmail.com
-                </a>
-              </p>
-            </div>
+            <p className="text-[#1A1A1A]/80 leading-relaxed">
+              If you have any questions about these Terms of Service, please contact us at:{' '}
+              <a href="mailto:teamintrasphere@gmail.com" className="text-[#FF7D29] hover:underline">
+                teamintrasphere@gmail.com
+              </a>
+            </p>
           </section>
         </div>
       </main>
