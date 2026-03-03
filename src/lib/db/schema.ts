@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real, index } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 export const analyses = sqliteTable("analyses", {
@@ -11,6 +11,10 @@ export const analyses = sqliteTable("analyses", {
     error_message: text("error_message"),
     created_at: text("created_at").default(sql`CURRENT_TIMESTAMP`),
     updated_at: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+}, (table) => {
+    return {
+        userIdIdx: index("analyses_user_id_idx").on(table.user_id),
+    };
 });
 
 export const subscriptions = sqliteTable("subscriptions", {
@@ -23,4 +27,8 @@ export const subscriptions = sqliteTable("subscriptions", {
     status: text("status", { enum: ["active", "created", "authenticated", "past_due", "halted", "canceled", "paused", "expired", "pending", "completed"] }).notNull(),
     current_period_end: integer("current_period_end"), // Unix timestamp when plan expires
     created_at: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+}, (table) => {
+    return {
+        userIdIdx: index("subscriptions_user_id_idx").on(table.user_id),
+    };
 });

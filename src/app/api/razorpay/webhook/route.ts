@@ -1,17 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyRazorpaySignature } from '@/lib/razorpay';
+import { verifyWebhookSignature } from '@/lib/razorpay';
 import { db } from '@/lib/db';
 import { subscriptions } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const rawBody = await request.text();
+    const body = JSON.parse(rawBody);
     const signature = request.headers.get('x-razorpay-signature');
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
     if (!signature) {
       return NextResponse.json(
         { error: 'Missing signature' },
+        { status: 401 }
+      );
+    }
+
+    if (!webhookSecret) {
+      console.error('❌ RAZORPAY_WEBHOOK_SECRET is not set');
+      return NextResponse.json(
+        { error: 'Webhook secret not configured' },
+        { status: 500 }
+      );
+    }
+
+    // Verify the signature
+    const isValid = verifyWebhookSignature(rawBody, signature, webhookSecret);
+
+    if (!isValid) {
+      console.warn('⚠️ Invalid Razorpay webhook signature received');
+      return NextResponse.json(
+        { error: 'Invalid signature' },
         { status: 401 }
       );
     }

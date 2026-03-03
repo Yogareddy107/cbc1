@@ -102,7 +102,7 @@ export async function createRazorpayOrder(options: RazorpayPaymentOptions) {
 }
 
 /**
- * Verify payment signature
+ * Verify payment signature for client-side redirection
  */
 export function verifyRazorpaySignature(
   orderId: string,
@@ -110,12 +110,34 @@ export function verifyRazorpaySignature(
   signature: string
 ): boolean {
   try {
-    const shasum = require('crypto').createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!);
+    const crypto = require('crypto');
+    const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!);
     shasum.update(`${orderId}|${paymentId}`);
     const digest = shasum.digest('hex');
     return digest === signature;
   } catch (error) {
     console.error('Error verifying Razorpay signature:', error);
+    return false;
+  }
+}
+
+/**
+ * Verify webhook signature from Razorpay headers
+ */
+export function verifyWebhookSignature(
+  payload: string,
+  signature: string,
+  secret: string
+): boolean {
+  try {
+    const crypto = require('crypto');
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(payload)
+      .digest('hex');
+    return expectedSignature === signature;
+  } catch (error) {
+    console.error('Error verifying Razorpay webhook signature:', error);
     return false;
   }
 }

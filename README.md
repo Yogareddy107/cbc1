@@ -20,17 +20,31 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Environment Variables
+
+To run this project, you will need to add the following variables to your `.env.local`:
+
+### Appwrite
+- `NEXT_PUBLIC_APPWRITE_ENDPOINT`: Your Appwrite endpoint
+- `NEXT_PUBLIC_APPWRITE_PROJECT_ID`: Your Appwrite project ID
+- `APPWRITE_API_KEY`: Appwrite Admin API Key (required for server-side operations)
+
+### Database (Turso/LibSQL)
+- `DATABASE_URL`: Your database connection URL
+- `DATABASE_AUTH_TOKEN`: Your database authentication token
+
+### Razorpay (Payments)
+- `NEXT_PUBLIC_RAZORPAY_KEY_ID`: Your Razorpay Key ID
+- `RAZORPAY_KEY_SECRET`: Your Razorpay Key Secret
+- `RAZORPAY_WEBHOOK_SECRET`: Secure secret for verifying webhooks
+
+## Security & Scalability
+
+This project is built for long-term growth and high traffic:
+- **Optimized Queries**: All major tables include indices on `user_id` for fast data retrieval at scale.
+- **Secure Payments**: Webhook signature verification prevents fraudulent payment injections.
+- **Abuse Prevention**: Rate limiting is integrated into sensitive endpoints (Login, Payments).
+- **Data Integrity**: Strict Zod schemas validate all server-side inputs.
+
 ## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+...

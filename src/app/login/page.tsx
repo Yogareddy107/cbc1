@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CheckCircle2, Loader2, AlertCircle, Compass, Eye, EyeOff } from 'lucide-react';
-import { signInWithEmail, signUpWithEmail, signInWithGitHub, signInWithGoogle } from '../auth/actions';
+import { signInWithEmail, signUpWithEmail } from '../auth/actions';
+import { signInWithGoogleClient } from '@/lib/appwrite-client';
 
 
 function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [mode, setMode] = useState<'signin' | 'signup'>('signup');
+    const [mode, setMode] = useState<'signin' | 'signup'>(searchParams.get('mode') === 'signup' ? 'signup' : 'signin');
     const [forgotMode, setForgotMode] = useState(false);
     const [emailValue, setEmailValue] = useState('');
     const [loading, setLoading] = useState(false);
@@ -29,7 +30,7 @@ function LoginContent() {
         if (isLimitReached) {
             setMode('signup');
         }
-        
+
         // Display OAuth errors if present
         if (authError) {
             setError(decodeURIComponent(authError));
@@ -77,39 +78,19 @@ function LoginContent() {
         }
     };
 
-    const handleGitHubLogin = async () => {
-        try {
-            setError('');
-            setLoading(true);
-            const result = await signInWithGitHub();
-            if (result?.error) {
-                setError(result.error);
-                setLoading(false);
-            } else if (result?.url) {
-                window.location.href = result.url;
-            } else {
-                setError('Unknown OAuth response');
-                setLoading(false);
-            }
-        } catch (err: any) {
-            console.error('GitHub login error:', err);
-            setError(err.message || 'Failed to initiate GitHub login');
-            setLoading(false);
-        }
-    };
 
     const handleGoogleLogin = async () => {
         try {
             setError('');
             setLoading(true);
-            const result = await signInWithGoogle();
-            if (result?.error) {
-                setError(result.error);
-                setLoading(false);
-            } else if (result?.url) {
-                window.location.href = result.url;
-            } else {
-                setError('Unknown OAuth response');
+
+            const response = await fetch('/api/auth/google-oauth');
+            const data = await response.json();
+
+            if (data.url) {
+                window.location.href = data.url;
+            } else if (data.error) {
+                setError(data.error);
                 setLoading(false);
             }
         } catch (err: any) {
@@ -198,13 +179,14 @@ function LoginContent() {
                         </div>
                     )}
 
-                    <div className="space-y-8">
+                    <div className="space-y-8" suppressHydrationWarning>
                         <div className="flex flex-row lg:flex-col items-center justify-center gap-4">
                             <Button
                                 variant="outline"
                                 className="flex items-center justify-center gap-3 lg:w-full h-14 text-md font-bold border-[#1A1A1A]/5 hover:bg-white hover:border-[#1A1A1A]/10 bg-white shadow-sm transition-all rounded-2xl group"
                                 onClick={handleGoogleLogin}
                                 disabled={loading}
+                                suppressHydrationWarning
                             >
                                 {/* Google logo */}
                                 <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
@@ -213,17 +195,6 @@ function LoginContent() {
                                 <span className="hidden lg:inline">Continue with Google</span>
                             </Button>
 
-                            <Button
-                                variant="outline"
-                                className="flex items-center justify-center gap-3 lg:w-full h-14 text-md font-bold border-[#1A1A1A]/5 hover:bg-white hover:border-[#1A1A1A]/10 bg-white shadow-sm transition-all rounded-2xl group"
-                                onClick={handleGitHubLogin}
-                                disabled={loading}
-                            >
-                                <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                                </svg>
-                                <span className="hidden lg:inline">Continue with GitHub</span>
-                            </Button>
                         </div>
 
                         <div className="relative">
@@ -235,19 +206,13 @@ function LoginContent() {
                             </div>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-6" suppressHydrationWarning>
                             {error && (
                                 <div className="space-y-3">
-                                    <div className="p-4 text-sm rounded-2xl bg-red-50 border border-red-100 text-red-600 flex items-center gap-3 font-medium">
+                                    <div className="p-4 text-sm rounded-2xl bg-red-50 border border-red-100 text-red-600 flex items-center gap-3 font-medium" suppressHydrationWarning>
                                         <AlertCircle className="w-4 h-4 flex-shrink-0" />
                                         {error}
                                     </div>
-                                    {error.toLowerCase().includes('github') && (
-                                        <div className="p-3 text-xs rounded-lg bg-blue-50 border border-blue-100 text-blue-700">
-                                            <p className="font-semibold mb-1">💡 GitHub OAuth Issue?</p>
-                                            <p className="mb-2">Check our <a href="/oauth-diagnostics" className="font-bold text-[#FF7D29] hover:underline">OAuth Diagnostics</a> page for help.</p>
-                                        </div>
-                                    )}
                                 </div>
                             )}
                             {success && (
@@ -257,7 +222,7 @@ function LoginContent() {
                                 </div>
                             )}
 
-                            <div className="space-y-2">
+                            <div className="space-y-2" suppressHydrationWarning>
                                 <Label htmlFor="email" className="text-[#1A1A1A]/60 font-bold text-xs uppercase tracking-wider ml-1">Email Address</Label>
                                 <Input
                                     id="email"
@@ -268,13 +233,14 @@ function LoginContent() {
                                     onChange={(e) => setEmailValue(e.target.value)}
                                     className="h-12 bg-white border-[#1A1A1A]/10 focus:border-[#FF7D29] focus:ring-[#FF7D29]/20 transition-all rounded-xl shadow-sm"
                                     required
+                                    suppressHydrationWarning
                                 />
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-2" suppressHydrationWarning>
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="password" className="text-[#1A1A1A]/60 font-bold text-xs uppercase tracking-wider ml-1">Password</Label>
                                     {mode === 'signin' && (
-                                        <button type="button" onClick={() => setForgotMode(true)} className="text-xs font-bold text-[#FF7D29] hover:underline transition-all">
+                                        <button type="button" onClick={() => setForgotMode(true)} className="text-xs font-bold text-[#FF7D29] hover:underline transition-all" suppressHydrationWarning>
                                             Forgot?
                                         </button>
                                     )}
@@ -287,53 +253,55 @@ function LoginContent() {
                                         placeholder="••••••••"
                                         className="h-12 bg-white border-[#1A1A1A]/10 focus:border-[#FF7D29] focus:ring-[#FF7D29]/20 transition-all rounded-xl shadow-sm pr-12"
                                         required
+                                        suppressHydrationWarning
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(s => !s)}
                                         aria-label={showPassword ? 'Hide password' : 'Show password'}
                                         className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1A1A1A]/50 hover:text-[#1A1A1A]"
+                                        suppressHydrationWarning
                                     >
                                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                     </button>
                                 </div>
                             </div>
-                                {forgotMode && mode === 'signin' && (
-                                    <div className="p-4 rounded-lg border border-[#EAEAEA] bg-white/50 space-y-3">
-                                        <p className="text-sm text-[#1A1A1A]/70">Enter your email and we'll send a password reset link.</p>
-                                        <div className="flex gap-2">
-                                            <Input
-                                                type="email"
-                                                placeholder="name@company.com"
-                                                value={emailValue}
-                                                onChange={(e) => setEmailValue(e.target.value)}
-                                                className="h-12"
-                                            />
-                                            <Button onClick={async () => {
-                                                if (!emailValue) return setError('Please enter your email');
-                                                setError('');
-                                                setSuccess('');
-                                                try {
-                                                    const res = await fetch('/api/auth/recover', {
-                                                        method: 'POST',
-                                                        headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify({ email: emailValue, redirectUrl: window.location.origin + '/reset-password' })
-                                                    });
-                                                    const data = await res.json();
-                                                    if (data?.error) setError(data.error);
-                                                    else setSuccess(data.message || 'If the email exists, a recovery link was sent.');
-                                                } catch (e: any) {
-                                                    setError('Failed to send recovery email');
-                                                }
-                                            }} className="h-12">Send</Button>
-                                        </div>
-                                        <div>
-                                            <button className="text-xs text-[#666] hover:underline" type="button" onClick={() => setForgotMode(false)}>Cancel</button>
-                                        </div>
+                            {forgotMode && mode === 'signin' && (
+                                <div className="p-4 rounded-lg border border-[#EAEAEA] bg-white/50 space-y-3">
+                                    <p className="text-sm text-[#1A1A1A]/70">Enter your email and we'll send a password reset link.</p>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            type="email"
+                                            placeholder="name@company.com"
+                                            value={emailValue}
+                                            onChange={(e) => setEmailValue(e.target.value)}
+                                            className="h-12"
+                                        />
+                                        <Button onClick={async () => {
+                                            if (!emailValue) return setError('Please enter your email');
+                                            setError('');
+                                            setSuccess('');
+                                            try {
+                                                const res = await fetch('/api/auth/recover', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({ email: emailValue, redirectUrl: window.location.origin + '/reset-password' })
+                                                });
+                                                const data = await res.json();
+                                                if (data?.error) setError(data.error);
+                                                else setSuccess(data.message || 'If the email exists, a recovery link was sent.');
+                                            } catch (e: any) {
+                                                setError('Failed to send recovery email');
+                                            }
+                                        }} className="h-12">Send</Button>
                                     </div>
-                                )}
+                                    <div>
+                                        <button className="text-xs text-[#666] hover:underline" type="button" onClick={() => setForgotMode(false)}>Cancel</button>
+                                    </div>
+                                </div>
+                            )}
                             {mode === 'signup' && (
-                                <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-300">
+                                <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-300" suppressHydrationWarning>
                                     <Label htmlFor="confirmPassword" className="text-[#1A1A1A]/60 font-bold text-xs uppercase tracking-wider ml-1">Confirm Password</Label>
                                     <div className="relative">
                                         <Input
@@ -343,12 +311,14 @@ function LoginContent() {
                                             placeholder="••••••••"
                                             className="h-12 bg-white border-[#1A1A1A]/10 focus:border-[#FF7D29] focus:ring-[#FF7D29]/20 transition-all rounded-xl shadow-sm pr-12"
                                             required
+                                            suppressHydrationWarning
                                         />
                                         <button
                                             type="button"
                                             onClick={() => setShowConfirmPassword(s => !s)}
                                             aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
                                             className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1A1A1A]/50 hover:text-[#1A1A1A]"
+                                            suppressHydrationWarning
                                         >
                                             {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                         </button>
@@ -356,7 +326,7 @@ function LoginContent() {
                                 </div>
                             )}
 
-                            <Button type="submit" className="w-full h-14 text-md font-bold bg-[#FF7D29] text-white hover:bg-[#FF7D29]/90 shadow-lg shadow-[#FF7D29]/20 transition-all active:scale-[0.98] rounded-2xl" disabled={loading}>
+                            <Button type="submit" className="w-full h-14 text-md font-bold bg-[#FF7D29] text-white hover:bg-[#FF7D29]/90 shadow-lg shadow-[#FF7D29]/20 transition-all active:scale-[0.98] rounded-2xl" disabled={loading} suppressHydrationWarning>
                                 {loading ? <Loader2 className="animate-spin" /> : mode === 'signin' ? 'Sign in' : 'Create free account'}
                             </Button>
                         </form>
@@ -368,6 +338,7 @@ function LoginContent() {
                             <button
                                 onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
                                 className="text-[#FF7D29] font-bold text-sm hover:underline transition-all ml-1"
+                                suppressHydrationWarning
                             >
                                 {mode === 'signin' ? 'Sign up' : 'Log in'}
                             </button>

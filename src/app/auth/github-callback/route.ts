@@ -3,39 +3,45 @@ import { createAdminClient } from '@/lib/appwrite'
 import { cookies } from 'next/headers'
 
 export async function GET(request: Request) {
-    const { origin, searchParams } = new URL(request.url)
-    const next = searchParams.get('next') ?? '/dashboard'
+    const { searchParams, origin } = new URL(request.url)
+    const allParams = Object.fromEntries(searchParams.entries());
 
-    // Appwrite OAuth redirects back with userId and secret as query params
+    // OAuth parameters from Appwrite redirect
     const userId = searchParams.get('userId')
     const secret = searchParams.get('secret')
+    const next = searchParams.get('next') ?? '/dashboard'
 
-    if (!userId || !secret) {
-        console.error('GitHub callback: Missing userId or secret in query params')
-        return NextResponse.redirect(
-            `${origin}/login?error=${encodeURIComponent('GitHub authentication failed. Missing credentials.')}`
-        )
-    }
+    console.log('🔄 GitHub OAuth callback received', {
+        origin,
+        params: allParams,
+        hasUserId: !!userId,
+        hasSecret: !!secret
+    });
 
     try {
-        // Use admin client to create a session from the OAuth credentials
-        const { account } = await createAdminClient()
-        const session = await account.createSession(userId, secret)
+        if (userId && secret) {
+            console.log('✅ Found userId and secret, creating session...');
+            const { account } = await createAdminClient();
 
-            // Set the session cookie so createSessionClient() works on subsequent requests
-            ; (await cookies()).set('appwrite-session', session.secret, {
+            // Create a session with the OAuth credentials
+            const session = await account.createSession(userId, secret);
+            console.log('✅ Session created successfully');
+
+            (await cookies()).set('appwrite-session', session.secret, {
                 path: '/',
                 httpOnly: true,
-                sameSite: 'strict',
-                secure: true,
-            })
+                sameSite: 'lax',
+                secure: process.env.NODE_ENV === 'production',
+            });
 
-        // Session is valid, redirect to dashboard
-        return NextResponse.redirect(`${origin}${next}`)
-    } catch (error: any) {
-        console.error('GitHub callback error:', error)
-        return NextResponse.redirect(
-            `${origin}/login?error=${encodeURIComponent('GitHub authentication failed. Please try again.')}`
-        )
+            console.log('✅ Cookie set, redirecting to:', next);
+            return NextResponse.redirect(`${origin}${next}`)
+        }
+
+        console.warn('⚠️ Missing userId or secret from GitHub callback. Redirecting to login with error.');
+        return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent('GitHub authentication failed: Missing credentials in callback.')}`)
+    } catch (e: any) {
+        console.error('❌ GitHub OAuth callback error:', e);
+        return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(e.message || 'GitHub authentication failed')}`)
     }
 }

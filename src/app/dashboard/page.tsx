@@ -8,6 +8,7 @@ import { Github, ExternalLink, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { NewAnalysisForm } from '@/components/dashboard/NewAnalysisForm';
 import { desc, eq } from 'drizzle-orm';
+import { cookies } from 'next/headers';
 
 export default async function DashboardPage() {
     let user: { $id: string, email: string } | null = null;
@@ -19,6 +20,26 @@ export default async function DashboardPage() {
             email: appwriteUser.email,
         };
     } catch (e) {
+        // Session verification failed, check if this is an OAuth session
+        const cookieStore = await cookies();
+        const cookieNames = Array.from(cookieStore.getAll()).map(c => c.name);
+        
+        console.log('⚠️ Session check failed in dashboard. Available cookies:', cookieNames);
+        console.log('Error:', (e as any)?.message);
+        
+        // If we have any appwrite-related cookies, we might have a valid OAuth session
+        // but the cookie wasn't set properly. Redirect to a session recovery page.
+        const hasSession = cookieNames.some(name => 
+            name.includes('appwrite') || name.includes('session')
+        );
+        
+        if (hasSession) {
+            // We have Appwrite session data but createSessionClient failed
+            // This might be an OAuth session - redirect to a recovery page
+            redirect('/auth/session-recovery');
+        }
+        
+        // No session found at all
         redirect('/login');
     }
 

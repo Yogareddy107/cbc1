@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSessionClient } from '@/lib/appwrite';
 import { createRazorpayOrder } from '@/lib/razorpay';
+import { rateLimit } from '@/lib/rate-limit';
 
 // Plan pricing in INR
 const PLAN_PRICING = {
@@ -9,6 +10,10 @@ const PLAN_PRICING = {
 
 export async function POST(request: NextRequest) {
   try {
+    const { isLimited } = await rateLimit(request, { limit: 5, windowMs: 60 * 1000 });
+    if (isLimited) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
     const { userId, plan = 'pro' } = await request.json();
 
     if (!userId) {
@@ -22,10 +27,10 @@ export async function POST(request: NextRequest) {
     try {
       const { account } = await createSessionClient();
       const user = await account.get();
-      
+
       const email = user.email || 'customer@example.com';
       const name = user.name || 'Customer';
-      
+
       // Get plan amount
       const amount = PLAN_PRICING[plan as keyof typeof PLAN_PRICING] || PLAN_PRICING.pro;
 
