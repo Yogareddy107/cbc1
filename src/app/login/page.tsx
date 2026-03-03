@@ -180,10 +180,10 @@ function LoginContent() {
                     )}
 
                     <div className="space-y-8" suppressHydrationWarning>
-                        <div className="flex flex-row lg:flex-col items-center justify-center gap-4">
+                        <div className="flex flex-col items-center justify-center gap-4">
                             <Button
                                 variant="outline"
-                                className="flex items-center justify-center gap-3 lg:w-full h-14 text-md font-bold border-[#1A1A1A]/5 hover:bg-white hover:border-[#1A1A1A]/10 bg-white shadow-sm transition-all rounded-2xl group"
+                                className="flex items-center justify-center gap-3 w-full h-14 text-md font-bold border-[#1A1A1A]/5 hover:bg-white hover:border-[#1A1A1A]/10 bg-white shadow-sm transition-all rounded-2xl group"
                                 onClick={handleGoogleLogin}
                                 disabled={loading}
                                 suppressHydrationWarning
@@ -192,9 +192,8 @@ function LoginContent() {
                                 <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M21.35 11.1h-9.36v2.92h5.54c-.24 1.28-1.4 3.75-5.54 3.75-3.33 0-6.04-2.76-6.04-6.17s2.71-6.17 6.04-6.17c1.9 0 3.17.81 3.9 1.5l2.65-2.56C17.3 3.15 14.58 2 11 2 5.48 2 1 6.48 1 12s4.48 10 10 10c5.77 0 9.95-4.04 9.95-9.77 0-.66-.07-1.17-.15-1.43z" />
                                 </svg>
-                                <span className="hidden lg:inline">Continue with Google</span>
+                                <span>Continue with Google</span>
                             </Button>
-
                         </div>
 
                         <div className="relative">
